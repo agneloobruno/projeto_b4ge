@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Obras cadastradas{% endblock %}
+
+{% block content %}
+<h1>Obras cadastradas</h1>
+
+<a href="#" class="btn btn-success mb-3">Nova obra</a>
+
+<table class="table table-dark table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Tipologia</th>
+            <th>Localização</th>
+            <th>Área construída (m²)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obra in obras %}
+        <tr>
+            <td>{{ obra.nome }}</td>
+            <td>{{ obra.tipologia }}</td>
+            <td>{{ obra.localizacao }}</td>
+            <td>{{ obra.area_construida }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">Nenhuma obra cadastrada ainda.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
