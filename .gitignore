@@ -1,0 +1,13 @@
+# Ambiente virtual
+venv/
+
+# Arquivos temporários
+__pycache__/
+*.py[cod]
+*.log
+
+# Banco de dados local
+db.sqlite3
+
+# Configurações sensíveis (se usar dotenv)
+.env
