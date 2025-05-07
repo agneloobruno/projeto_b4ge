@@ -16,7 +16,11 @@ export default function ObraForm({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const dadosCorrigidos = {
+      ...formData,
+      area_construida: parseFloat(formData.area_construida),
+    };
+    onSubmit(dadosCorrigidos);
     setFormData({
       nome: "",
       tipologia: "",

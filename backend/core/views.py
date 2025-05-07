@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Obras, InsumoUsado
 from .forms import ObraForm, InsumoUsadoForm
 from django.http import JsonResponse
-from .serializers import ObrasSerializer
+from .api.serializers import ObrasSerializer
 from rest_framework import viewsets
 
 def home(request):

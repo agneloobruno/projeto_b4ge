@@ -2,9 +2,9 @@ from django.db import models
 
 class Obras(models.Model):
     nome = models.CharField(max_length=100)
-    tipologia = models.CharField(max_length=100)
+    tipologia = models.CharField(max_length=50)
     localizacao = models.CharField(max_length=100)
-    area_construida = models.FloatField(help_text="Área construída em m²")
+    area_construida = models.FloatField()
 
     def __str__(self):
         return self.nome
