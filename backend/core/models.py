@@ -9,6 +9,18 @@ class Obras(models.Model):
     def __str__(self):
         return self.nome
     
+    def energia_embutida_total(self):
+        total = 0
+        for insumo in self.insumos.all():
+            total += insumo.quantidade_kg * insumo.material.energia_embutida_mj_kg * insumo.material.fator_manutencao
+        return round(total, 2)
+
+    def co2_total(self):
+        total = 0
+        for insumo in self.insumos.all():
+            total += insumo.quantidade_kg * insumo.material.co2eq_kg * insumo.material.fator_manutencao
+        return round(total, 2)
+    
 class Material(models.Model):
     nome = models.CharField(max_length=100)
     densidade_kg_m3 = models.FloatField()

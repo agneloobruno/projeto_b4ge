@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Novo Insumo{% endblock %}
+
+{% block content %}
+<h1>Adicionar Insumo à Obra</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

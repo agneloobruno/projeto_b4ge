@@ -6,6 +6,8 @@
 <h1>Obras cadastradas</h1>
 
 <a href="{% url 'nova_obra' %}" class="btn btn-success mb-3">Nova obra</a>
+<a href="{% url 'novo_insumo' %}" class="btn btn-warning mb-3">Adicionar Insumo</a>
+
 
 <table class="table table-dark table-striped">
     <thead>
@@ -29,6 +31,20 @@
             <td colspan="4">Nenhuma obra cadastrada ainda.</td>
         </tr>
         {% endfor %}
+
+        <h2>Resumo de obras</h2>
+
+        <ul>
+        {% for obra in obras %}
+            <li>
+                <strong>{{ obra.nome }}</strong> — Energia: {{ obra.energia_embutida_total }} MJ |
+                CO₂eq: {{ obra.co2_total }} kg
+            </li>
+        {% empty %}
+            <li>Nenhuma obra cadastrada.</li>
+        {% endfor %}
+        </ul>
+
     </tbody>
 </table>
 {% endblock %}
