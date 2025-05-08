@@ -6,13 +6,14 @@ import Etapa2 from '@/components/Etapa2'
 import Etapa3 from '@/components/Etapa3'
 
 export default function Home() {
-  const [etapa, setEtapa] = useState(1)
+  const [etapa, setEtapa] = useState(1);
   const [dadosObra, setDadosObra] = useState({
-    nome: '',
-    tipologia: '',
-    localizacao: '',
-    areaConstruida: ''
-  })
+    nome: "",
+    tipologia: "",
+    localizacao: "",
+    area_construida: "",
+    insumos: []
+  });
 
   function proximaEtapa() {
     setEtapa(prev => prev + 1)
@@ -35,7 +36,12 @@ export default function Home() {
         <Etapa1 dados={dadosObra} onChange={handleChange} proximaEtapa={proximaEtapa} />
       )}
       {etapa === 2 && (
-        <Etapa2 etapaAnterior={etapaAnterior} proximaEtapa={proximaEtapa} />
+        <Etapa2
+          etapaAnterior={etapaAnterior}
+          proximaEtapa={proximaEtapa}
+          dados={dadosObra}
+          setDados={setDadosObra}
+        />
       )}
       {etapa === 3 && (
         <Etapa3 dados={dadosObra} etapaAnterior={etapaAnterior} />

@@ -3,38 +3,38 @@
 import { useState } from "react";
 
 export default function ObraForm({ onSubmit }) {
-  const [formData, setFormData] = useState({
-    nome: "",
-    tipologia: "",
-    localizacao: "",
-    area_construida: "",
-  });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [nome, setNome] = useState("");
+  const [tipologia, setTipologia] = useState("");
+  const [localizacao, setLocalizacao] = useState("");
+  const [area_construida, setAreaConstruida] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const dadosCorrigidos = {
-      ...formData,
-      area_construida: parseFloat(formData.area_construida),
+
+    // 🔥 Aqui montamos o objeto final com os nomes certos
+    const novaObra = {
+      nome: nome,
+      tipologia: tipologia,
+      localizacao: localizacao,
+      area_construida: parseFloat(area_construida), // snake_case correto
     };
-    onSubmit(dadosCorrigidos);
-    setFormData({
-      nome: "",
-      tipologia: "",
-      localizacao: "",
-      area_construida: "",
-    });
+
+    console.log("📦 Obra enviada:", novaObra); // CONFIRA isso no console
+    onSubmit(novaObra);
+
+    setNome("");
+    setTipologia("");
+    setLocalizacao("");
+    setAreaConstruida("");
+    alert("Obra cadastrada com sucesso!");
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <input name="nome" value={formData.nome} onChange={handleChange} placeholder="Nome" className="w-full p-2 border rounded" required />
-      <input name="tipologia" value={formData.tipologia} onChange={handleChange} placeholder="Tipologia" className="w-full p-2 border rounded" required />
-      <input name="localizacao" value={formData.localizacao} onChange={handleChange} placeholder="Localização" className="w-full p-2 border rounded" required />
-      <input name="area_construida" type="number" value={formData.area_construida} onChange={handleChange} placeholder="Área construída (m²)" className="w-full p-2 border rounded" required />
+      <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" className="w-full p-2 border rounded" required />
+      <input value={tipologia} onChange={(e) => setTipologia(e.target.value)} placeholder="Tipologia" className="w-full p-2 border rounded" required />
+      <input value={localizacao} onChange={(e) => setLocalizacao(e.target.value)} placeholder="Localização" className="w-full p-2 border rounded" required />
+      <input type="number" value={areaConstruida} onChange={(e) => setAreaConstruida(e.target.value)} placeholder="Área construída (m²)" className="w-full p-2 border rounded" required />
       <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cadastrar</button>
     </form>
   );

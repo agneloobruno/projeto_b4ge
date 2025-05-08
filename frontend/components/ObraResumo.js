@@ -5,8 +5,8 @@ export default function ObraResumo({ obras }) {
     <div>
       <h2 className="text-xl font-semibold mb-2">Resumo de obras</h2>
       <ul className="divide-y divide-gray-700">
-        {obras.map((obra, index) => (
-          <li key={index} className="py-2">
+        {obras.map((obra) => (
+          <li key={obra.id} className="py-2">
             <strong>{obra.nome}</strong> — {obra.tipologia} | {obra.localizacao} | {obra.area_construida} m²
           </li>
         ))}

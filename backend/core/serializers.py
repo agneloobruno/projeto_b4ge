@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Obras
+from .models import Obras
 
 class ObrasSerializer(serializers.ModelSerializer):
     class Meta:
