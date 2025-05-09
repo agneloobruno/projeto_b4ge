@@ -26,6 +26,23 @@ export default function Etapa3({ dados, etapaAnterior }) {
     }
   };
 
+  const salvarObra = async () => {
+  try {
+      const resposta = await fetch("http://localhost:8000/api/salvar/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados),
+      });
+
+      if (!resposta.ok) throw new Error("Erro ao salvar obra");
+
+     alert("✅ Obra salva com sucesso!");
+    } catch (err) {
+     alert("❌ " + err.message);
+    }
+  };
+
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Resumo da Obra</h2>
@@ -53,10 +70,10 @@ export default function Etapa3({ dados, etapaAnterior }) {
       </div>
 
       {resultado && (
-        <div className="bg-green-800 p-4 rounded space-y-1">
+        <><div className="bg-green-800 p-4 rounded space-y-1">
           <p><strong>Energia Total:</strong> {resultado.energia_total} MJ</p>
           <p><strong>CO₂ Total:</strong> {resultado.co2_total} kg</p>
-        </div>
+        </div><button onClick={salvarObra} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Obra no Sistema</button></>
       )}
 
       <div className="flex justify-between mt-6">

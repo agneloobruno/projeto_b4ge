@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import Obras, InsumoUsado
+from .models import Obras, InsumoUsado, Material
 from .forms import ObraForm, InsumoUsadoForm
 from django.http import JsonResponse
-from .serializers import ObrasSerializer
+from .serializers import ObrasSerializer, MaterialSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -56,6 +56,34 @@ def simular_obra(request):
         "co2_total": round(co2_total, 2)
     })
 
+@api_view(['POST'])
+def salvar_obra(request):
+    dados = request.data
+    insumos = dados.get('insumos', [])
+
+    # Cria a Obra
+    obra = Obras.objects.create(
+        nome=dados['nome'],
+        tipologia=dados['tipologia'],
+        localizacao=dados['localizacao'],
+        area_construida=dados['area_construida']
+    )
+
+    # Cria os insumos vinculados à obra
+    for insumo in insumos:
+        try:
+            material = Material.objects.get(id=insumo['material'])
+            InsumoUsado.objects.create(
+                obra=obra,
+                material=material,
+                quantidade_kg=insumo['quantidade_kg']
+            )
+        except Material.DoesNotExist:
+            continue  # ignora se material inválido
+
+    return Response({"message": "Obra salva com sucesso!"}, status=status.HTTP_201_CREATED)
+
+
 class ObraViewSet(viewsets.ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
@@ -70,3 +98,7 @@ class ObraViewSet(viewsets.ModelViewSet):
         print("❌ Erros no serializer:", serializer.errors)
         print("🧾 Campos recebidos:", list(request.data.keys()))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class MaterialViewSet(viewsets.ReadOnlyModelViewSet):  # Apenas GET (list/retrieve)
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
