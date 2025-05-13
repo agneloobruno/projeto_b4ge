@@ -1,6 +1,22 @@
 "use client";
 
 export default function Etapa1({ dados, onChange, proximaEtapa }) {
+  const handleAvancar = () => {
+    if (
+      !dados.nome.trim() ||
+      !dados.tipologia.trim() ||
+      !dados.localizacao.trim() ||
+      !dados.area_construida ||
+      isNaN(dados.area_construida) ||
+      Number(dados.area_construida) <= 0
+    ) {
+      alert("⚠️ Preencha todos os campos corretamente antes de continuar.");
+      return;
+    }
+
+    proximaEtapa(); // chama a função original passada por props
+  };
+
   return (
     <div className="space-y-4">
       <label className="block">
@@ -52,7 +68,7 @@ export default function Etapa1({ dados, onChange, proximaEtapa }) {
       </label>
 
       <button
-        onClick={proximaEtapa}
+        onClick={handleAvancar} // 👈 função com validação local
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         Próxima etapa

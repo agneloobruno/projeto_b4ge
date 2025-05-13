@@ -29,6 +29,18 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
   };
 
   const salvarEAvancar = () => {
+    const algumInvalido = insumosSelecionados.some(
+    (insumo) =>
+      !insumo.quantidade_kg ||
+      isNaN(insumo.quantidade_kg) ||
+      insumo.quantidade_kg <= 0
+  );
+
+  if (algumInvalido) {
+    alert("⚠️ Informe quantidades válidas (maiores que 0) para todos os insumos.");
+    return;
+  }
+
     setDados({ ...dados, insumos: insumosSelecionados });
     proximaEtapa();
   };
