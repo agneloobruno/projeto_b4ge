@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Etapa3({ dados, etapaAnterior }) {
+  const router = useRouter(); 
   const [resultado, setResultado] = useState(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -37,6 +39,7 @@ export default function Etapa3({ dados, etapaAnterior }) {
       if (!resposta.ok) throw new Error("Erro ao salvar obra");
 
      alert("✅ Obra salva com sucesso!");
+     router.push("/obras");
     } catch (err) {
      alert("❌ " + err.message);
     }
