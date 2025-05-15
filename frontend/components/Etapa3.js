@@ -52,7 +52,10 @@ export default function Etapa3({ dados, etapaAnterior }) {
     try {
       const resposta = await fetch("http://localhost:8000/api/salvar/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization:'Bearer ${token}',
+        },
         body: JSON.stringify(dados),
       });
 
