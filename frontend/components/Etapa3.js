@@ -4,11 +4,31 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Etapa3({ dados, etapaAnterior }) {
-  const router = useRouter(); 
+  const router = useRouter();
   const [resultado, setResultado] = useState(null);
   const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
 
   const enviarSimulacao = async () => {
+    setErro("");
+
+    if (!dados.insumos || dados.insumos.length === 0) {
+      setErro("Você precisa selecionar pelo menos um material.");
+      return;
+    }
+
+    const algumInvalido = dados.insumos.some(
+      (ins) =>
+        !ins.quantidade_kg ||
+        isNaN(ins.quantidade_kg) ||
+        Number(ins.quantidade_kg) <= 0
+    );
+
+    if (algumInvalido) {
+      setErro("Há materiais com quantidade inválida.");
+      return;
+    }
+
     try {
       setEnviando(true);
       const resposta = await fetch("http://localhost:8000/api/simular/", {
@@ -29,7 +49,7 @@ export default function Etapa3({ dados, etapaAnterior }) {
   };
 
   const salvarObra = async () => {
-  try {
+    try {
       const resposta = await fetch("http://localhost:8000/api/salvar/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,17 +58,18 @@ export default function Etapa3({ dados, etapaAnterior }) {
 
       if (!resposta.ok) throw new Error("Erro ao salvar obra");
 
-     alert("✅ Obra salva com sucesso!");
-     router.push("/obras");
+      alert("✅ Obra salva com sucesso!");
+      router.push("/obras");
     } catch (err) {
-     alert("❌ " + err.message);
+      alert("❌ " + err.message);
     }
   };
-
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Resumo da Obra</h2>
+
+      {erro && <p className="text-sm text-red-400">{erro}</p>}
 
       <div className="bg-gray-800 p-4 rounded space-y-1">
         <p><strong>Nome:</strong> {dados.nome}</p>
@@ -73,10 +94,18 @@ export default function Etapa3({ dados, etapaAnterior }) {
       </div>
 
       {resultado && (
-        <><div className="bg-green-800 p-4 rounded space-y-1">
-          <p><strong>Energia Total:</strong> {resultado.energia_total} MJ</p>
-          <p><strong>CO₂ Total:</strong> {resultado.co2_total} kg</p>
-        </div><button onClick={salvarObra} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Obra no Sistema</button></>
+        <>
+          <div className="bg-green-800 p-4 rounded space-y-1">
+            <p><strong>Energia Total:</strong> {resultado.energia_total} MJ</p>
+            <p><strong>CO₂ Total:</strong> {resultado.co2_total} kg</p>
+          </div>
+          <button
+            onClick={salvarObra}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Salvar Obra no Sistema
+          </button>
+        </>
       )}
 
       <div className="flex justify-between mt-6">

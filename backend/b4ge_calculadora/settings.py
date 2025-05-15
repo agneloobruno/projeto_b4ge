@@ -73,6 +73,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'b4ge_calculadora.wsgi.application'
 
 
+
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados }) {
   const [materiais, setMateriais] = useState([]);
   const [insumosSelecionados, setInsumosSelecionados] = useState(dados.insumos || []);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:8000/api/materiais/")
@@ -29,17 +30,24 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
   };
 
   const salvarEAvancar = () => {
-    const algumInvalido = insumosSelecionados.some(
-    (insumo) =>
-      !insumo.quantidade_kg ||
-      isNaN(insumo.quantidade_kg) ||
-      insumo.quantidade_kg <= 0
-  );
+    setErro(""); // limpa erro anterior
 
-  if (algumInvalido) {
-    alert("⚠️ Informe quantidades válidas (maiores que 0) para todos os insumos.");
-    return;
-  }
+    if (insumosSelecionados.length === 0) {
+      setErro("Você precisa selecionar pelo menos um material.");
+      return;
+    }
+
+    const algumInvalido = insumosSelecionados.some(
+      (insumo) =>
+        !insumo.quantidade_kg ||
+        isNaN(insumo.quantidade_kg) ||
+        insumo.quantidade_kg <= 0
+    );
+
+    if (algumInvalido) {
+      setErro("Informe quantidades válidas (maiores que 0) para todos os insumos.");
+      return;
+    }
 
     setDados({ ...dados, insumos: insumosSelecionados });
     proximaEtapa();
@@ -48,6 +56,8 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-4">Selecione os materiais utilizados</h2>
+
+      {erro && <p className="text-sm text-red-400">{erro}</p>}
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
         {materiais.map((mat) => (
@@ -75,7 +85,12 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
                     value={insumo.quantidade_kg}
                     onChange={(e) => atualizarQuantidade(index, e.target.value)}
                     placeholder="Qtd (kg)"
-                    className="ml-4 p-1 rounded bg-gray-800 border border-gray-600 w-32"
+                    className={`ml-4 p-1 rounded bg-gray-800 w-32 ${
+                      erro &&
+                      (!insumo.quantidade_kg || insumo.quantidade_kg <= 0)
+                        ? "border border-red-500"
+                        : "border border-gray-600"
+                    }`}
                   />
                 </li>
               );
