@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch } from "../src/utils/authFetch"; // ajuste o caminho se necessário
 
 export default function Etapa3({ dados, etapaAnterior }) {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function Etapa3({ dados, etapaAnterior }) {
 
     try {
       setEnviando(true);
-      const resposta = await fetch("http://localhost:8000/api/simular/", {
+      const resposta = await authFetch("http://localhost:8000/api/simular/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
@@ -50,12 +51,9 @@ export default function Etapa3({ dados, etapaAnterior }) {
 
   const salvarObra = async () => {
     try {
-      const resposta = await fetch("http://localhost:8000/api/salvar/", {
+      const resposta = await authFetch("http://localhost:8000/api/salvar/", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization:'Bearer ${token}',
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
       });
 

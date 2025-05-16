@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { authFetch } from '../../src/utils/authFetch';
+
 
 export default function ObrasPage() {
   const [obras, setObras] = useState([])
   const [carregando, setCarregando] = useState(true)
 
+  
   useEffect(() => {
-    fetch('http://localhost:8000/api/obras/')
+    authFetch('http://localhost:8000/api/obras/')
       .then((res) => res.json())
       .then((data) => {
         setObras(data)
@@ -16,7 +19,6 @@ export default function ObrasPage() {
       })
       .catch(() => setCarregando(false))
   }, [])
-
   return (
     <main className="min-h-screen bg-gray-900 text-white p-8">
       <h1 className="text-3xl font-bold mb-6">Obras Cadastradas</h1>
