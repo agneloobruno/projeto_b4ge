@@ -22,13 +22,16 @@ class Obras(models.Model):
         return round(total, 2)
     
 class Material(models.Model):
-    nome = models.CharField(max_length=100)
-    densidade_kg_m3 = models.FloatField()
-    energia_embutida_mj_kg = models.FloatField()
-    co2eq_kg = models.FloatField()
-    fator_manutencao = models.FloatField(default=1.0)
-    distancia_transporte_km = models.FloatField()
-    referencia = models.CharField(max_length=255, blank=True)
+    descricao = models.CharField(max_length=100)
+    densidade = models.FloatField(null=True, blank=True)  # kg/m³
+    energia_embutida_mj_kg = models.FloatField(null=True, blank=True)
+    energia_embutida_mj_m3 = models.FloatField(null=True, blank=True)
+    co2_kg = models.FloatField(null=True, blank=True)  # kgCO2eq/kg
+    fator_manutencao = models.FloatField(null=True, blank=True)
+    referencia = models.CharField(max_length=200, null=True, blank=True)
+    distancia_transporte_km = models.FloatField(null=True, blank=True)
+    capacidade_caminhao_kg = models.IntegerField(null=True, blank=True)
+    referencia_cuiaba = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.nome
