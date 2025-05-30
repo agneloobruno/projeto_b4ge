@@ -66,7 +66,7 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
             onClick={() => adicionarInsumo(mat.id)}
             className="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700"
           >
-            {mat.nome}
+            {mat.descricao}
           </button>
         ))}
       </div>
@@ -79,7 +79,7 @@ export default function Etapa2({ etapaAnterior, proximaEtapa, dados, setDados })
               const mat = materiais.find((m) => m.id === insumo.material);
               return (
                 <li key={index} className="flex items-center justify-between">
-                  <span>{mat?.nome}</span>
+                  <span>{mat?.descricao}</span>
                   <input
                     type="number"
                     value={insumo.quantidade_kg}

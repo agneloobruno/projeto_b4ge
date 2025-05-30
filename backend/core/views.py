@@ -51,8 +51,12 @@ def simular_obra(request):
         from .models import Material
         try:
             mat = Material.objects.get(id=material_id)
-            energia_total += quantidade * mat.energia_embutida_mj_kg * mat.fator_manutencao
-            co2_total += quantidade * mat.co2eq_kg * mat.fator_manutencao
+            energia_embutida = mat.energia_embutida_mj_kg or 0
+            fator_manutencao = mat.fator_manutencao or 1
+            co2_kg = mat.co2_kg or 0
+
+            energia_total += quantidade * energia_embutida * fator_manutencao
+            co2_total += quantidade * co2_kg * fator_manutencao
         except Material.DoesNotExist:
             continue  # ignora se material não encontrado
 

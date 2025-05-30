@@ -73,7 +73,7 @@ export default function Etapa3({ dados, etapaAnterior }) {
       {erro && <p className="text-sm text-red-400">{erro}</p>}
 
       <div className="bg-gray-800 p-4 rounded space-y-1">
-        <p><strong>Nome:</strong> {dados.nome}</p>
+        <p><strong>Nome:</strong> {dados.descricao}</p>
         <p><strong>Tipologia:</strong> {dados.tipologia}</p>
         <p><strong>Localização:</strong> {dados.localizacao}</p>
         <p><strong>Área construída:</strong> {dados.area_construida} m²</p>
