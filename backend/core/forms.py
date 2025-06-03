@@ -1,13 +1,12 @@
 from django import forms
-from .models import Obras, InsumoUsado
+from .models import Obras, ItemLista
 
 class ObraForm(forms.ModelForm):
     class Meta:
         model = Obras
-        fields = ['nome', 'tipologia', 'localizacao', 'area_construida']
+        fields = ['nome', 'tipologia', 'estado', 'municipio', 'area_total_construir']
 
-
-class InsumoUsadoForm(forms.ModelForm):
+class ItemListaForm(forms.ModelForm):
     class Meta:
-        model = InsumoUsado
-        fields = ['obra', 'material', 'quantidade_kg']
+        model = ItemLista
+        fields = ['obra', 'tipo', 'etapa_obra', 'material', 'composicao', 'quantidade', 'unidade']

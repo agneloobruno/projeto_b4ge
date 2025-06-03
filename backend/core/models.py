@@ -1,65 +1,29 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.postgres.fields import ArrayField
 
-class Obra(models.Model):
-    nome = models.CharField(max_length=255)
-    razao_social = models.CharField(max_length=255)
-    cep = models.CharField(max_length=10)
-    estado = models.CharField(max_length=2)
-    municipio = models.CharField(max_length=100)
-    logradouro = models.CharField(max_length=255)
-    complemento = models.CharField(max_length=255, blank=True, null=True)
-
-    area_terreno = models.FloatField()
-    area_construir = models.FloatField()
-    area_demolir = models.FloatField()
-    custo_inicial_estimado = models.FloatField()
-    custo_final_apurado = models.FloatField(null=True, blank=True)
-    tipo_registro = models.CharField(max_length=100)
-    data_inicio = models.DateField()
-    data_termino = models.DateField(null=True, blank=True)
-    sistema_construtivo = models.CharField(max_length=100)
-    especificacao = models.CharField(max_length=255)
-    tipo_empreendimento = models.CharField(max_length=100)
-    tipologia = models.CharField(max_length=100)
-    segmentacao = models.CharField(max_length=100)
-    padrao_empreendimento = models.CharField(max_length=100)
-    numero_unidades = models.IntegerField()
-    numero_pavimentos = models.IntegerField()
-
-    financiamento_publico = models.BooleanField(default=False)
-    busca_certificacao = models.BooleanField(default=False)
-    certificacao_informada = models.TextField(blank=True, null=True)
+class Obras(models.Model):
+    nome = models.CharField(max_length=100)
+    tipologia = models.CharField(max_length=50)
+    localizacao = models.CharField(max_length=100)
+    area_construida = models.FloatField()
 
     def __str__(self):
         return self.nome
+    
+    def energia_embutida_total(self):
+        total = 0
+        for insumo in self.insumos.all():
+            total += insumo.quantidade_kg * insumo.material.energia_embutida_mj_kg * insumo.material.fator_manutencao
+        return round(total, 2)
 
-class MovimentacaoSolo(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name='movimentacoes_solo')
-    solo_transportado_m3 = models.FloatField()
-    solo_recebido_m3 = models.FloatField()
-    solo_destinado_m3 = models.FloatField()
-    distancia_total_km = models.FloatField()
-    unidade_medida = models.CharField(max_length=20)
-    estimativa_percursos = models.IntegerField()
-    fonte = models.CharField(max_length=100)
-    data_entrega_material = models.DateField()
-    evidencia = models.TextField(blank=True, null=True)
-
-class UsoCombustivelMaquina(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name='usos_combustiveis')
-    descricao_maquina = models.CharField(max_length=255)
-    tipo_combustivel = models.CharField(max_length=100)
-    combustivel_utilizado_litros = models.FloatField()
-    qtd_horas_utilizadas = models.FloatField()
-    unidade = models.CharField(max_length=20)
-    fonte = models.CharField(max_length=100)
-    data_entrega_combustivel = models.DateField()
-    evidencia = models.TextField(blank=True, null=True)
-
-class ObservacaoObra(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name='observacoes')
-    observacao = models.TextField()
-
+    def co2_total(self):
+        total = 0
+        for insumo in self.insumos.all():
+            total += insumo.quantidade_kg * insumo.material.co2_kg * insumo.material.fator_manutencao
+        return round(total, 2)
+    
 class Material(models.Model):
     descricao = models.CharField(max_length=255, unique=True)
     densidade = models.FloatField(null=True, blank=True)
@@ -90,9 +54,9 @@ class DistanciaTransporte(models.Model):
         return f"{self.material.descricao} -> {self.cidade.nome}: {self.km} km"
 
 class InsumoUsado(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="insumos")
+    obra = models.ForeignKey(Obras, on_delete=models.CASCADE, related_name="insumos")
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantidade_kg = models.FloatField()
 
     def __str__(self):
-        return f"{self.material.descricao} em {self.obra.nome}"
+        return f"{self.obra.nome} - {self.tipo} - {self.material or self.composicao}"

@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
-from .models import Obras, InsumoUsado, Material
-from .forms import ObraForm, InsumoUsadoForm
+from .models import Obras, Material, ItemLista, Composicao
+from .forms import ObraForm
 from django.http import JsonResponse
 from .serializers import ObrasSerializer, MaterialSerializer
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import generics
-from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 
 def home(request):
@@ -22,14 +21,6 @@ def nova_obra(request):
         return redirect('home')
     return render(request, 'core/nova_obra.html', {'form': form})
 
-def novo_insumo(request):
-    form = InsumoUsadoForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('home')
-    return render(request, 'core/novo_insumo.html', {'form': form})
-
-
 @api_view(['GET'])
 def ping(request):
     return Response({"message": "pong from Django 🔁"})
@@ -38,61 +29,79 @@ def ping(request):
 @permission_classes([IsAuthenticated])
 def simular_obra(request):
     dados = request.data
-    insumos = dados.get('insumos', [])
+    area_fundacao = float(dados.get('area_fundacao', 0))
 
     energia_total = 0
     co2_total = 0
+    itens_calculados = []
 
-    for insumo in insumos:
-        material_id = insumo.get('material')
-        quantidade = float(insumo.get('quantidade_kg', 0))
+    # Substituir por lógica de composição futuramente
+    materiais_base = [
+        {"material_id": 1, "descricao": "Cimento", "proporcao": 50},
+        {"material_id": 2, "descricao": "Brita", "proporcao": 100},
+    ]
 
-        # Puxa os dados do material relacionado
-        from .models import Material
+    for mat in materiais_base:
         try:
-            mat = Material.objects.get(id=material_id)
-            energia_embutida = mat.energia_embutida_mj_kg or 0
-            fator_manutencao = mat.fator_manutencao or 1
-            co2_kg = mat.co2_kg or 0
-
-            energia_total += quantidade * energia_embutida * fator_manutencao
-            co2_total += quantidade * co2_kg * fator_manutencao
+            material = Material.objects.get(id=mat["material_id"])
         except Material.DoesNotExist:
-            continue  # ignora se material não encontrado
+            continue
+
+        quantidade = area_fundacao * mat["proporcao"]
+        energia = quantidade * (material.energia_embutida_mj_kg or 0) * (material.fator_manutencao or 1)
+        co2 = quantidade * (material.co2_kg or 0) * (material.fator_manutencao or 1)
+
+        energia_total += energia
+        co2_total += co2
+
+        itens_calculados.append({
+            "material": material.descricao,
+            "quantidade": round(quantidade, 2),
+            "energia": round(energia, 2),
+            "co2": round(co2, 2),
+        })
 
     return Response({
-        "energia_total": round(energia_total, 2),
-        "co2_total": round(co2_total, 2)
+        "itens": itens_calculados,
+        "energia_total_mj": round(energia_total, 2),
+        "co2_total_kg": round(co2_total, 2)
     })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def salvar_obra(request):
     dados = request.data
-    insumos = dados.get('insumos', [])
+    itens = dados.get('itens_lista', [])
 
-    # Cria a Obra
     obra = Obras.objects.create(
         nome=dados['nome'],
         tipologia=dados['tipologia'],
-        localizacao=dados['localizacao'],
-        area_construida=dados['area_construida']
+        estado=dados['estado'],
+        municipio=dados['municipio'],
+        area_total_construir=dados['area_total_construir']
     )
 
-    # Cria os insumos vinculados à obra
-    for insumo in insumos:
+    for item in itens:
         try:
-            material = Material.objects.get(id=insumo['material'])
-            InsumoUsado.objects.create(
-                obra=obra,
-                material=material,
-                quantidade_kg=insumo['quantidade_kg']
-            )
+            material = Material.objects.get(id=item['material'])
         except Material.DoesNotExist:
-            continue  # ignora se material inválido
+            continue
+
+        ItemLista.objects.create(
+            obra=obra,
+            tipo="INSUMO",
+            etapa_obra=item.get("etapa_obra", "Fundação"),
+            material=material,
+            unidade=item.get("unidade", "kg"),
+            quantidade=item.get("quantidade", 0),
+            proporcao=item.get("proporcao", 0),
+            energia_embutida_mj=item.get("energia_embutida_mj", 0),
+            energia_embutida_gj=item.get("energia_embutida_mj", 0) / 1000,
+            co2_kg=item.get("co2", 0),
+            equivalente_kg=item.get("quantidade", 0)
+        )
 
     return Response({"message": "Obra salva com sucesso!"}, status=status.HTTP_201_CREATED)
-
 
 class ObraViewSet(viewsets.ModelViewSet):
     queryset = Obras.objects.all()
@@ -109,8 +118,8 @@ class ObraViewSet(viewsets.ModelViewSet):
         print("❌ Erros no serializer:", serializer.errors)
         print("🧾 Campos recebidos:", list(request.data.keys()))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class MaterialViewSet(viewsets.ReadOnlyModelViewSet):  # Apenas GET (list/retrieve)
+
+class MaterialViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
 
@@ -121,10 +130,54 @@ class UserSerializer(ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
+        return User.objects.create_user(**validated_data)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def simular_fundacao(request):
+    codigo = request.data.get('codigo_composicao')
+    multiplicador = float(request.data.get('multiplicador', 0))
+
+    try:
+        composicao = Composicao.objects.get(codigo=codigo)
+    except Composicao.DoesNotExist:
+        return Response({"error": "Composição não encontrada"}, status=404)
+
+    total_co2 = 0
+    itens_resultado = []
+
+    def resolver_composicao(comp, mult):
+        nonlocal total_co2
+
+        for item in comp.itens.all():
+            proporcao = item.proporcao or 0
+            quantidade = proporcao * mult
+
+            if item.material:
+                mat = item.material
+                co2 = quantidade * (mat.co2_kg or 0) * (mat.fator_manutencao or 1)
+                total_co2 += co2
+                itens_resultado.append({
+                    "material": mat.descricao,
+                    "quantidade_kg": round(quantidade, 2),
+                    "co2_kg": round(co2, 2)
+                })
+
+            elif item.subcomposicao:
+                resolver_composicao(item.subcomposicao, quantidade)
+
+    resolver_composicao(composicao, multiplicador)
+
+    return Response({
+        "composicao": composicao.descricao,
+        "codigo": composicao.codigo,
+        "multiplicador_utilizado": multiplicador,
+        "co2_total_kg": round(total_co2, 2),
+        "itens": itens_resultado
+    })

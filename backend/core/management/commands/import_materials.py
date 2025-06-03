@@ -1,52 +1,77 @@
-import csv
-import os
 from django.core.management.base import BaseCommand
-from core.models import Material
+from core.models import Composicao, ComposicaoItem, Material
+import pandas as pd
+import os
 
 class Command(BaseCommand):
-    help = 'Importa materiais a partir de um arquivo CSV limpo.'
+    help = "Importa dados completos do SINAPI (composições, itens e insumos)"
 
-    def add_arguments(self, parser):
-        parser.add_argument('csv_path', type=str, help='Caminho para o arquivo CSV')
-
-    def handle(self, *args, **options):
-        csv_path = options['csv_path']
-        self.stdout.write(self.style.SUCCESS(f'Arquivo CSV recebido: {csv_path}'))
-
-        if not os.path.exists(csv_path):
-            self.stderr.write(self.style.ERROR(f'Arquivo não encontrado: {csv_path}'))
+    def handle(self, *args, **kwargs):
+        base_dir = os.path.join(os.getcwd(), "data")
+        if not os.path.exists(base_dir):
+            self.stdout.write(self.style.ERROR("❌ Pasta 'data' não encontrada."))
             return
 
-        with open(csv_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            count = 0
+        # Caminhos esperados
+        analitico_path = os.path.join(base_dir, "SINAPI_Custo_Ref_Composicoes_Analitico_MT_202412_Desonerado.xlsx")
+        sintetico_path = os.path.join(base_dir, "SINAPI_Custo_Ref_Composicoes_Sintetico_MT_202412_Desonerado.xlsx")
+        insumos_path = os.path.join(base_dir, "SINAPI_Preco_Ref_Insumos_MT_202412_Desonerado.xlsx")
+        familia_path = os.path.join(base_dir, "_SINAPI_Relatório_Família_de_Insumos_2024_12.xlsx")
 
-            for row in reader:
-                material, created = Material.objects.update_or_create(
-                    descricao=row['descricao'],
-                    defaults={
-                        'densidade': self.parse_float(row.get('densidade')),
-                        'energia_embutida_mj_kg': self.parse_float(row.get('energia_embutida_mj_kg')),
-                        'energia_embutida_mj_m3': self.parse_float(row.get('energia_embutida_mj_m3')),
-                        'co2_kg': self.parse_float(row.get('co2_kg')),
-                        'fator_manutencao': self.parse_float(row.get('fator_manutencao')),
-                        'referencia': row.get('referencia', ''),
-                        'capacidade_caminhao': self.parse_int(row.get('capacidade_caminhao')),
-                        'referencia_para_cuiaba': row.get('referencia_para_cuiaba', ''),
-                    }
+        # Validação de arquivos
+        for path in [analitico_path, sintetico_path, insumos_path, familia_path]:
+            if not os.path.isfile(path):
+                self.stdout.write(self.style.ERROR(f"❌ Arquivo não encontrado: {path}"))
+                return
+
+        # --- Importa Composições Analíticas ---
+        df = pd.read_excel(analitico_path)
+        df = df.rename(columns={
+            "CODIGO DA COMPOSICAO": "codigo_composicao",
+            "DESCRICAO DA COMPOSICAO": "descricao_composicao",
+            "UNIDADE": "unidade_composicao",
+            "CODIGO ITEM": "codigo_item",
+            "DESCRIÇÃO ITEM": "descricao_item",
+            "UNIDADE ITEM": "unidade_item",
+            "COEFICIENTE": "coeficiente"
+        })
+
+        df_validas = df.dropna(subset=["codigo_composicao", "codigo_item", "coeficiente"])
+        self.stdout.write(f"📊 Linhas válidas (analítico): {len(df_validas)}")
+
+        composicoes_criadas = {}
+        itens_criados = 0
+
+        for _, row in df_validas.iterrows():
+            cod = str(row["codigo_composicao"]).strip()
+            desc = str(row["descricao_composicao"]).strip()
+            unidade = str(row["unidade_composicao"]).strip()
+
+            composicao, _ = Composicao.objects.get_or_create(
+                codigo=cod,
+                defaults={"descricao": desc, "unidade": unidade}
+            )
+            composicoes_criadas[cod] = composicao
+
+            try:
+                material = Material.objects.get(descricao__iexact=row["descricao_item"].strip())
+                ComposicaoItem.objects.create(
+                    composicao_pai=composicao,
+                    material=material,
+                    unidade=row["unidade_item"],
+                    proporcao=float(str(row["coeficiente"]).replace(",", "."))
+
                 )
-                count += 1
+                itens_criados += 1
+            except Material.DoesNotExist:
+                continue
 
-        self.stdout.write(self.style.SUCCESS(f'{count} materiais importados com sucesso.'))
+        self.stdout.write(self.style.SUCCESS(f"✅ {len(composicoes_criadas)} composições criadas."))
+        self.stdout.write(self.style.SUCCESS(f"✅ {itens_criados} itens de composição vinculados."))
 
-    def parse_float(self, value):
-        try:
-            return float(value.replace(',', '.')) if value else None
-        except Exception:
-            return None
+        # (Opcional) Etapas futuras: 
+        # - Preencher valores da composição com base na planilha sintética
+        # - Atualizar preços dos materiais com base na planilha de insumos
+        # - Considerar vínculos da planilha de família de insumos (ainda não implementado)
 
-    def parse_int(self, value):
-        try:
-            return int(float(value)) if value else None
-        except Exception:
-            return None
+        self.stdout.write(self.style.WARNING("⚠️ Importações auxiliares (sintética, insumos, vínculos) ainda não foram processadas."))
