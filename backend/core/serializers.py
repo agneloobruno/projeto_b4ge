@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from .models import Obras, Material, ItemLista, Composicao, ComposicaoItem
 
+
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
         fields = '__all__'
+
 
 class ItemListaSerializer(serializers.ModelSerializer):
     material = MaterialSerializer(read_only=True)
@@ -17,10 +19,6 @@ class ItemListaSerializer(serializers.ModelSerializer):
 
     energia_embutida_gj_calculada = serializers.SerializerMethodField()
     co2_kg_calculado = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ItemLista
-        fields = '__all__' + ('energia_embutida_gj_calculada', 'co2_kg_calculado')
 
     def get_energia_embutida_gj_calculada(self, obj):
         if obj.material and obj.quantidade and obj.material.energia_embutida_mj_kg:
@@ -38,6 +36,7 @@ class ItemListaSerializer(serializers.ModelSerializer):
         model = ItemLista
         fields = '__all__'
 
+
 class ObrasSerializer(serializers.ModelSerializer):
     energia_embutida_total = serializers.SerializerMethodField()
     co2_total = serializers.SerializerMethodField()
@@ -52,21 +51,19 @@ class ObrasSerializer(serializers.ModelSerializer):
 
     def get_co2_total(self, obj):
         return obj.co2_total()
-class MaterialSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Material
-        fields = '__all__'
+
 
 class ComposicaoItemSerializer(serializers.ModelSerializer):
     material = MaterialSerializer()
 
     class Meta:
         model = ComposicaoItem
-        fields = ['material', 'quantidade', 'unidade']
+        fields = ['material', 'subcomposicao', 'unidade', 'proporcao']
+
 
 class ComposicaoSerializer(serializers.ModelSerializer):
-    itens = ComposicaoItemSerializer(many=True, read_only=True, source='composicaoitem_set')
+    itens = ComposicaoItemSerializer(many=True, read_only=True, source='itens')
 
     class Meta:
         model = Composicao
-        fields = ['codigo', 'descricao', 'unidade', 'classe_1', 'classe_2', 'itens']
+        fields = ['codigo', 'descricao', 'unidade', 'etapa_obra', 'itens']
