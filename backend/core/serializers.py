@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Obras, Material, ItemLista, Composicao, ComposicaoItem
+from .models import Obras, Material, Insumo, ItemLista, Composicao, ComposicaoItem
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -8,11 +8,19 @@ class MaterialSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ItemListaSerializer(serializers.ModelSerializer):
+class InsumoSerializer(serializers.ModelSerializer):
     material = MaterialSerializer(read_only=True)
-    material_id = serializers.PrimaryKeyRelatedField(
-        source='material',
-        queryset=Material.objects.all(),
+
+    class Meta:
+        model = Insumo
+        fields = '__all__'
+
+
+class ItemListaSerializer(serializers.ModelSerializer):
+    insumo = InsumoSerializer(read_only=True)
+    insumo_id = serializers.PrimaryKeyRelatedField(
+        source='insumo',
+        queryset=Insumo.objects.all(),
         write_only=True,
         required=False
     )
@@ -20,21 +28,24 @@ class ItemListaSerializer(serializers.ModelSerializer):
     energia_embutida_gj_calculada = serializers.SerializerMethodField()
     co2_kg_calculado = serializers.SerializerMethodField()
 
+    class Meta:
+        model = ItemLista
+        fields = '__all__' + (
+            'energia_embutida_gj_calculada',
+            'co2_kg_calculado'
+        )
+
     def get_energia_embutida_gj_calculada(self, obj):
-        if obj.material and obj.quantidade and obj.material.energia_embutida_mj_kg:
-            fator = obj.material.fator_manutencao or 1
-            return round((obj.quantidade * obj.material.energia_embutida_mj_kg * fator) / 1000, 4)
+        if obj.insumo and obj.quantidade and obj.insumo.material and obj.insumo.material.energia_embutida_mj_kg:
+            fator = obj.insumo.material.fator_manutencao or 1
+            return round((obj.quantidade * obj.insumo.material.energia_embutida_mj_kg * fator) / 1000, 4)
         return None
 
     def get_co2_kg_calculado(self, obj):
-        if obj.material and obj.quantidade and obj.material.co2_kg:
-            fator = obj.material.fator_manutencao or 1
-            return round(obj.quantidade * obj.material.co2_kg * fator, 4)
+        if obj.insumo and obj.quantidade and obj.insumo.material and obj.insumo.material.co2_kg:
+            fator = obj.insumo.material.fator_manutencao or 1
+            return round(obj.quantidade * obj.insumo.material.co2_kg * fator, 4)
         return None
-
-    class Meta:
-        model = ItemLista
-        fields = '__all__'
 
 
 class ObrasSerializer(serializers.ModelSerializer):
@@ -54,11 +65,12 @@ class ObrasSerializer(serializers.ModelSerializer):
 
 
 class ComposicaoItemSerializer(serializers.ModelSerializer):
-    material = MaterialSerializer()
+    insumo = InsumoSerializer()
+    subcomposicao = serializers.StringRelatedField()
 
     class Meta:
         model = ComposicaoItem
-        fields = ['material', 'subcomposicao', 'unidade', 'proporcao']
+        fields = ['insumo', 'subcomposicao', 'unidade', 'proporcao']
 
 
 class ComposicaoSerializer(serializers.ModelSerializer):
