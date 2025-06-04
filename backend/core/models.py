@@ -68,6 +68,12 @@ class ComposicaoItem(models.Model):
     unidade = models.CharField(max_length=10)
     proporcao = models.FloatField()
 
+    # CAMPOS NOVOS NECESSÁRIOS PARA IMPORTAÇÃO DA LISTA
+    quantidade = models.FloatField(null=True, blank=True)
+    energia_embutida_mj = models.FloatField(null=True, blank=True)
+    energia_embutida_gj = models.FloatField(null=True, blank=True)
+    co2_kg = models.FloatField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.composicao_pai.codigo} → {self.material or self.subcomposicao}"
 
