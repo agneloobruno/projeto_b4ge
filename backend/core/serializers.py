@@ -41,6 +41,8 @@ class ItemListaSerializer(serializers.ModelSerializer):
 class ObrasSerializer(serializers.ModelSerializer):
     energia_embutida_total = serializers.SerializerMethodField()
     co2_total = serializers.SerializerMethodField()
+    itens_lista = ItemListaSerializer(many=True, read_only=True)
+
     class Meta:
         model = Obras
         fields = '__all__'
@@ -50,7 +52,6 @@ class ObrasSerializer(serializers.ModelSerializer):
 
     def get_co2_total(self, obj):
         return obj.co2_total()
-
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
