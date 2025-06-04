@@ -4,55 +4,53 @@ import pandas as pd
 import os
 
 class Command(BaseCommand):
-    help = "Importa ComposicaoItem a partir da planilha 'Lista' da B4GE"
+    help = "Importa ComposicaoItem com base na planilha adaptada da aba LISTA (B4GE)"
 
     def handle(self, *args, **kwargs):
-        file_path = os.path.join("data", "Pasta1.xlsx")
+        file_path = os.path.join(os.getcwd(), "data", "Pasta1.xlsx")
         if not os.path.isfile(file_path):
-            self.stdout.write(self.style.ERROR("❌ Arquivo Pasta1.xlsx não encontrado em /data"))
+            self.stdout.write(self.style.ERROR("❌ Arquivo Pasta1.xlsx não encontrado na pasta /data"))
             return
 
         df = pd.read_excel(file_path)
-        df = df.rename(columns={
-            "Cód. SINAPI": "codigo_composicao",
-            "Descrição": "descricao",
-            "Unidade": "unidade",
-            "Proporção": "proporcao",
-            "Quantidade": "quantidade",
-            " Carbono Embutido dos Materiais (kgCO2/kg)": "co2_kg",
-            "Energia embutida (MJ/kg)": "energia_embutida_mj_kg",
-            "Fator manutenção": "fator_manutencao",
-        })
+        df.columns = [col.strip() for col in df.columns]
 
-        df = df.dropna(subset=["codigo_composicao", "descricao", "proporcao"])
         criados = 0
+        ignorados = 0
+
         for _, row in df.iterrows():
-            cod = str(row["codigo_composicao"]).strip()
+            cod_comp = str(row["Cód. SINAPI"]).strip()
+            desc_item = str(row["Descrição"]).strip()
+            unidade = str(row["Unidade"]).strip()
+            proporcao = row["Proporção"]
+
+            if pd.isna(cod_comp) or pd.isna(desc_item) or pd.isna(proporcao):
+                ignorados += 1
+                continue
+
             try:
-                composicao = Composicao.objects.get(codigo=cod)
+                composicao = Composicao.objects.get(codigo=cod_comp)
             except Composicao.DoesNotExist:
+                self.stdout.write(f"⚠️ Composição não encontrada: {cod_comp}")
+                ignorados += 1
                 continue
 
             try:
-                material = Material.objects.get(descricao__iexact=row["descricao"].strip())
+                material = Material.objects.get(descricao__iexact=desc_item)
             except Material.DoesNotExist:
+                self.stdout.write(f"⚠️ Material não encontrado: {desc_item}")
+                ignorados += 1
                 continue
 
-            proporcao = float(str(row["proporcao"]).replace(",", "."))
-            quantidade = float(str(row.get("quantidade", 0)).replace(",", ".") or 0)
-            energia_mj = proporcao * float(row.get("energia_embutida_mj_kg") or 0)
-            co2_total = proporcao * float(row.get("co2_kg") or 0)
+            proporcao = float(str(proporcao).replace(",", "."))
 
             ComposicaoItem.objects.create(
                 composicao_pai=composicao,
                 material=material,
-                unidade=row.get("unidade", "kg"),
-                proporcao=proporcao,
-                quantidade=quantidade,
-                energia_embutida_mj=energia_mj,
-                energia_embutida_gj=energia_mj / 1000,
-                co2_kg=co2_total
+                unidade=unidade,
+                proporcao=proporcao
             )
             criados += 1
 
-        self.stdout.write(self.style.SUCCESS(f"✅ {criados} itens de composição vinculados com sucesso."))
+        self.stdout.write(self.style.SUCCESS(f"✅ {criados} itens de composição importados com sucesso."))
+        self.stdout.write(self.style.WARNING(f"⚠️ {ignorados} linhas foram ignoradas por falta de dados ou inconsistências."))
