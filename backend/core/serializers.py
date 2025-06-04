@@ -7,13 +7,32 @@ class MaterialSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ItemListaSerializer(serializers.ModelSerializer):
-    material = MaterialSerializer(read_only=True)  # mostra dados do material
+    material = MaterialSerializer(read_only=True)
     material_id = serializers.PrimaryKeyRelatedField(
         source='material',
         queryset=Material.objects.all(),
         write_only=True,
         required=False
     )
+
+    energia_embutida_gj_calculada = serializers.SerializerMethodField()
+    co2_kg_calculado = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ItemLista
+        fields = '__all__' + ('energia_embutida_gj_calculada', 'co2_kg_calculado')
+
+    def get_energia_embutida_gj_calculada(self, obj):
+        if obj.material and obj.quantidade and obj.material.energia_embutida_mj_kg:
+            fator = obj.material.fator_manutencao or 1
+            return round((obj.quantidade * obj.material.energia_embutida_mj_kg * fator) / 1000, 4)
+        return None
+
+    def get_co2_kg_calculado(self, obj):
+        if obj.material and obj.quantidade and obj.material.co2_kg:
+            fator = obj.material.fator_manutencao or 1
+            return round(obj.quantidade * obj.material.co2_kg * fator, 4)
+        return None
 
     class Meta:
         model = ItemLista
