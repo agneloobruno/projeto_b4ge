@@ -1,77 +1,110 @@
 from django.core.management.base import BaseCommand
-from core.models import Composicao, ComposicaoItem, Material
+from core.models import Material, Cidade, DistanciaTransporte
 import pandas as pd
 import os
+import unicodedata
+import csv
 
 class Command(BaseCommand):
-    help = "Importa dados completos do SINAPI (composições, itens e insumos)"
+    help = "Importa dados de materiais com características ambientais e distância para Cuiabá"
+
+    def normalize(self, text):
+        if not isinstance(text, str):
+            return ""
+        text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode("utf-8")
+        return text.upper().strip()
+
+    def safe_str(self, value):
+        return str(value).strip() if pd.notna(value) else None
+
+    def safe_float(self, value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    def safe_int(self, value):
+        try:
+            return int(float(value))  # trata 25000.0
+        except (TypeError, ValueError):
+            return None
 
     def handle(self, *args, **kwargs):
-        base_dir = os.path.join(os.getcwd(), "data")
-        if not os.path.exists(base_dir):
-            self.stdout.write(self.style.ERROR("❌ Pasta 'data' não encontrada."))
+        file_path = os.path.join(os.getcwd(), "data", "Banco_Materiais.xlsx")
+        if not os.path.isfile(file_path):
+            self.stdout.write(self.style.ERROR(f"❌ Arquivo não encontrado: {file_path}"))
             return
 
-        # Caminhos esperados
-        analitico_path = os.path.join(base_dir, "SINAPI_Custo_Ref_Composicoes_Analitico_MT_202412_Desonerado.xlsx")
-        sintetico_path = os.path.join(base_dir, "SINAPI_Custo_Ref_Composicoes_Sintetico_MT_202412_Desonerado.xlsx")
-        insumos_path = os.path.join(base_dir, "SINAPI_Preco_Ref_Insumos_MT_202412_Desonerado.xlsx")
-        familia_path = os.path.join(base_dir, "_SINAPI_Relatório_Família_de_Insumos_2024_12.xlsx")
+        try:
+            df = pd.read_excel(file_path)
+            df.columns = df.columns.str.strip().str.upper()
+            df = df.loc[:, ~df.columns.str.contains('^UNNAMED')]
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"❌ Erro ao carregar planilha: {e}"))
+            return
 
-        # Validação de arquivos
-        for path in [analitico_path, sintetico_path, insumos_path, familia_path]:
-            if not os.path.isfile(path):
-                self.stdout.write(self.style.ERROR(f"❌ Arquivo não encontrado: {path}"))
-                return
-
-        # --- Importa Composições Analíticas ---
-        df = pd.read_excel(analitico_path)
         df = df.rename(columns={
-            "CODIGO DA COMPOSICAO": "codigo_composicao",
-            "DESCRICAO DA COMPOSICAO": "descricao_composicao",
-            "UNIDADE": "unidade_composicao",
-            "CODIGO ITEM": "codigo_item",
-            "DESCRIÇÃO ITEM": "descricao_item",
-            "UNIDADE ITEM": "unidade_item",
-            "COEFICIENTE": "coeficiente"
+            'DESCRIÇÃO': 'DESCRICAO',
+            'DENSIDADE (KG/M3)': 'DENSIDADE',
+            'ENERGIA EMBUTIDA (MJ/KG)': 'ENERGIA_KG',
+            'ENERGIA EMBUTIDA (MJ/M3)': 'ENERGIA_M3',
+            'KGCO2EQ/KG': 'CO2_KG',
+            'FATOR DE ACRÉSCIMO PARA MANUTENÇÃO (REF. 50 ANOS) (TAVARES)': 'FATOR_MANUTENCAO',
+            'REFERÊNCIA': 'REFERENCIA',
+            'DISTÂNCIA DE TRANSPORTE (KM)': 'DISTANCIA_KM',
+            'CAPACIDADE DO CAMINHÃO (KG)': 'CAPACIDADE_CAMINHAO',
+            'REFERÊNCIA PARA CUIABÁ': 'REFERENCIA_CUIABA'
         })
 
-        df_validas = df.dropna(subset=["codigo_composicao", "codigo_item", "coeficiente"])
-        self.stdout.write(f"📊 Linhas válidas (analítico): {len(df_validas)}")
+        total = 0
+        salvos = 0
+        erros = []
 
-        composicoes_criadas = {}
-        itens_criados = 0
-
-        for _, row in df_validas.iterrows():
-            cod = str(row["codigo_composicao"]).strip()
-            desc = str(row["descricao_composicao"]).strip()
-            unidade = str(row["unidade_composicao"]).strip()
-
-            composicao, _ = Composicao.objects.get_or_create(
-                codigo=cod,
-                defaults={"descricao": desc, "unidade": unidade}
-            )
-            composicoes_criadas[cod] = composicao
-
+        for _, row in df.iterrows():
             try:
-                material = Material.objects.get(descricao__iexact=row["descricao_item"].strip())
-                ComposicaoItem.objects.create(
-                    composicao_pai=composicao,
-                    material=material,
-                    unidade=row["unidade_item"],
-                    proporcao=float(str(row["coeficiente"]).replace(",", "."))
+                descricao_raw = row.get('DESCRICAO')
+                if pd.isna(descricao_raw) or not str(descricao_raw).strip():
+                    continue
 
+                descricao = str(descricao_raw).strip()
+
+                material, _ = Material.objects.update_or_create(
+                    descricao=descricao,  # usado apenas como filtro
+                    defaults={
+                        'densidade': self.safe_float(row.get('DENSIDADE')),
+                        'energia_embutida_mj_kg': self.safe_float(row.get('ENERGIA_KG')),
+                        'energia_embutida_mj_m3': self.safe_float(row.get('ENERGIA_M3')),
+                        'co2_kg': self.safe_float(row.get('CO2_KG')),
+                        'fator_manutencao': self.safe_float(row.get('FATOR_MANUTENCAO')),
+                        'referencia': self.safe_str(row.get('REFERENCIA')),
+                        'capacidade_caminhao': self.safe_int(row.get('CAPACIDADE_CAMINHAO'))
+                    }
                 )
-                itens_criados += 1
-            except Material.DoesNotExist:
-                continue
 
-        self.stdout.write(self.style.SUCCESS(f"✅ {len(composicoes_criadas)} composições criadas."))
-        self.stdout.write(self.style.SUCCESS(f"✅ {itens_criados} itens de composição vinculados."))
+                nome_cidade = self.safe_str(row.get('REFERENCIA_CUIABA'))
+                if nome_cidade:
+                    cidade, _ = Cidade.objects.get_or_create(nome=nome_cidade)
+                    distancia = self.safe_float(row.get('DISTANCIA_KM'))
+                    DistanciaTransporte.objects.update_or_create(
+                        cidade=cidade,
+                        material=material,
+                        defaults={'km': distancia}
+                    )
 
-        # (Opcional) Etapas futuras: 
-        # - Preencher valores da composição com base na planilha sintética
-        # - Atualizar preços dos materiais com base na planilha de insumos
-        # - Considerar vínculos da planilha de família de insumos (ainda não implementado)
+                self.stdout.write(f"✅ Importado: {descricao}")
+                salvos += 1
+            except Exception as e:
+                erros.append((str(row.get('DESCRICAO')), str(e)))
 
-        self.stdout.write(self.style.WARNING("⚠️ Importações auxiliares (sintética, insumos, vínculos) ainda não foram processadas."))
+            total += 1
+
+        self.stdout.write(self.style.SUCCESS(f"🎯 {salvos} materiais importados com sucesso de {total} linhas."))
+
+        if erros:
+            erro_path = os.path.join(os.getcwd(), "materiais_erro.csv")
+            with open(erro_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["descricao", "erro"])
+                for linha in erros:
+                    writer.writerow(linha)
+            self.stdout.write(self.style.WARNING(f"⚠️ {len(erros)} materiais com erro. Exportado para: {erro_path}"))

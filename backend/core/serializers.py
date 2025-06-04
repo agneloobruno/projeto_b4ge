@@ -30,22 +30,16 @@ class ItemListaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemLista
-        fields = '__all__' + (
-            'energia_embutida_gj_calculada',
-            'co2_kg_calculado'
-        )
+        fields = [
+            'id', 'obra', 'tipo', 'etapa_obra', 'insumo', 'insumo_id', 'composicao', 'unidade',
+            'proporcao', 'quantidade', 'equivalente_kg',
+            'energia_embutida_mj', 'energia_embutida_gj', 'energia_embutida_gj_calculada',
+            'co2_kg', 'co2_kg_calculado',
+            'distancia_km', 'energia_transporte_mj', 'energia_transporte_gj',
+            'potencia_w', 'tempo_uso', 'energia_equip_mj', 'energia_equip_gj',
+            'percentual_total'
+        ]
 
-    def get_energia_embutida_gj_calculada(self, obj):
-        if obj.insumo and obj.quantidade and obj.insumo.material and obj.insumo.material.energia_embutida_mj_kg:
-            fator = obj.insumo.material.fator_manutencao or 1
-            return round((obj.quantidade * obj.insumo.material.energia_embutida_mj_kg * fator) / 1000, 4)
-        return None
-
-    def get_co2_kg_calculado(self, obj):
-        if obj.insumo and obj.quantidade and obj.insumo.material and obj.insumo.material.co2_kg:
-            fator = obj.insumo.material.fator_manutencao or 1
-            return round(obj.quantidade * obj.insumo.material.co2_kg * fator, 4)
-        return None
 
 
 class ObrasSerializer(serializers.ModelSerializer):

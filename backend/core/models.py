@@ -34,7 +34,7 @@ class Cidade(models.Model):
 
 
 class DistanciaTransporte(models.Model):
-    insumo = models.ForeignKey(Insumo, on_delete=models.CASCADE)
+    insumo = models.ForeignKey(Insumo, on_delete=models.CASCADE, null=True, blank=True)
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
     km = models.FloatField()
 
@@ -104,10 +104,10 @@ class Composicao(models.Model):
 
 class ComposicaoItem(models.Model):
     composicao_pai = models.ForeignKey(Composicao, on_delete=models.CASCADE, related_name='itens')
-    insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, null=True, blank=True)
-    subcomposicao = models.ForeignKey(Composicao, on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_itens')
+    insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, null=True, blank=True, related_name="composicao_items")
+    subcomposicao = models.ForeignKey(Composicao, on_delete=models.SET_NULL, null=True, blank=True, related_name="como_subcomposicao")
     unidade = models.CharField(max_length=10)
-    proporcao = models.FloatField()
+    proporcao = models.FloatField(null=True, blank=True)
 
     quantidade = models.FloatField(null=True, blank=True)
     energia_embutida_mj = models.FloatField(null=True, blank=True)

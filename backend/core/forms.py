@@ -9,4 +9,4 @@ class ObraForm(forms.ModelForm):
 class ItemListaForm(forms.ModelForm):
     class Meta:
         model = ItemLista
-        fields = ['obra', 'tipo', 'etapa_obra', 'material', 'composicao', 'quantidade', 'unidade']
+        fields = ['obra', 'tipo', 'etapa_obra', 'insumo', 'composicao', 'quantidade', 'unidade']
