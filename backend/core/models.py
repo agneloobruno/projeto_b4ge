@@ -108,6 +108,7 @@ class ComposicaoItem(models.Model):
     subcomposicao = models.ForeignKey(Composicao, on_delete=models.SET_NULL, null=True, blank=True, related_name="como_subcomposicao")
     unidade = models.CharField(max_length=10)
     proporcao = models.FloatField(null=True, blank=True)
+    valido = models.BooleanField(default=True)
 
     quantidade = models.FloatField(null=True, blank=True)
     energia_embutida_mj = models.FloatField(null=True, blank=True)

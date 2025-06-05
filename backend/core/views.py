@@ -151,16 +151,20 @@ def simular_fundacao(request):
 
     total_co2 = 0
     itens_resultado = []
+    visitados = set()
 
     def resolver_composicao(comp, mult):
         nonlocal total_co2
+        if comp.pk in visitados:
+            return  # previne ciclo
+        visitados.add(comp.pk)
 
-        for item in comp.itens.all():
+        for item in comp.itens.filter(valido=True):
             proporcao = item.proporcao or 0
             quantidade = proporcao * mult
 
-            if item.material:
-                mat = item.material
+            if item.insumo and item.insumo.material:
+                mat = item.insumo.material
                 co2 = quantidade * (mat.co2_kg or 0) * (mat.fator_manutencao or 1)
                 total_co2 += co2
                 itens_resultado.append({
