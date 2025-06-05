@@ -5,7 +5,7 @@ import os
 import unicodedata
 
 class Command(BaseCommand):
-    help = "Importa composições e seus itens com base na aba Lista (estrutura SINAPI)"
+    help = "Importa composições e seus itens com base na aba Lista"
 
     def normalize(self, text):
         if not isinstance(text, str):
@@ -28,41 +28,46 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"❌ Erro ao carregar a planilha: {e}"))
             return
 
+        composicao_pai = None
         total_linhas = 0
         itens_adicionados = 0
         erros = []
 
-        composicao_pai = None
-        codigo_atual = None
-
         for _, row in df.iterrows():
             try:
-                cod_sinapi = str(row.get("CÓD. SINAPI") or "").strip()
+                cod = str(row.get("CÓD. SINAPI") or "").strip()
                 descricao = str(row.get("DESCRIÇÃO") or "").strip()
                 unidade = str(row.get("UNIDADE") or "").strip()
-                classe1 = self.normalize(row.get("CLASSE 1"))
-                classe2 = self.normalize(row.get("CLASSE 2"))
+                etapa_obra = str(row.get("ETAPAS DA OBRA") or "").strip()
                 proporcao_raw = row.get("PROPORÇÃO")
 
-                # Troca de composição-pai?
-                if cod_sinapi != codigo_atual:
+                classe1 = self.normalize(row.get("CLASSE 1"))
+                classe2 = self.normalize(row.get("CLASSE 2"))
+
+                # Verifica se é linha de definição de nova composição (serviço)
+                if cod and not pd.notna(proporcao_raw):
                     composicao_pai, _ = Composicao.objects.get_or_create(
-                        codigo=cod_sinapi,
-                        defaults={"descricao": descricao, "unidade": unidade}
+                        codigo=cod,
+                        defaults={
+                            "descricao": descricao,
+                            "unidade": unidade,
+                            "etapa_obra": etapa_obra
+                        }
                     )
-                    codigo_atual = cod_sinapi
-                    continue  # Pula a linha da definição da composição
+                    # Atualiza etapa da obra se já existir mas estiver vazia
+                    if composicao_pai.etapa_obra in [None, ""] and etapa_obra:
+                        composicao_pai.etapa_obra = etapa_obra
+                        composicao_pai.save()
+                    continue
 
-                # Linhas abaixo da composição são seus itens
-                is_subcomposicao = "COMPOSICAO" in classe1 or "COMPOSICAO" in classe2
+                if not composicao_pai or not pd.notna(proporcao_raw):
+                    continue
 
-                proporcao = float(proporcao_raw) if pd.notna(proporcao_raw) and proporcao_raw != '' else None
-                if proporcao is None:
-                    raise ValueError("Proporção ausente")
+                proporcao = float(proporcao_raw)
 
-                if is_subcomposicao:
+                if "COMPOSICAO" in classe1 or "COMPOSICAO" in classe2:
                     sub, _ = Composicao.objects.get_or_create(
-                        codigo=cod_sinapi,
+                        codigo=cod,
                         defaults={"descricao": descricao, "unidade": unidade}
                     )
                     ComposicaoItem.objects.update_or_create(
@@ -74,7 +79,7 @@ class Command(BaseCommand):
                         }
                     )
                 else:
-                    insumo = Insumo.objects.filter(codigo_sinapi=cod_sinapi).first()
+                    insumo = Insumo.objects.filter(codigo_sinapi=cod).first()
                     if insumo:
                         ComposicaoItem.objects.update_or_create(
                             composicao_pai=composicao_pai,
@@ -90,13 +95,10 @@ class Command(BaseCommand):
             except Exception as e:
                 erros.append((descricao or "N/D", str(e)))
 
-        self.stdout.write(self.style.SUCCESS(f"\n✅ {total_linhas} linhas processadas."))
-        self.stdout.write(self.style.SUCCESS(f"📦 {itens_adicionados} itens adicionados a composições."))
+        self.stdout.write(self.style.SUCCESS(f"\n✅ {total_linhas} itens processados."))
+        self.stdout.write(self.style.SUCCESS(f"📦 {itens_adicionados} ComposicaoItems adicionados."))
 
         if erros:
             self.stdout.write(self.style.WARNING(f"\n⚠️ {len(erros)} erros durante a importação. Primeiros 5 exemplos:"))
-            df_erros = pd.DataFrame(erros, columns=["descricao", "erro"])
-            df_erros.to_csv("insumos_sem_proporcao.csv", index=False)
-            self.stdout.write(self.style.WARNING(f"📁 Exportado para: insumos_sem_proporcao.csv"))
             for i, (desc, err) in enumerate(erros[:5]):
                 self.stdout.write(f"❌ {i+1}. '{desc}' → {err}")

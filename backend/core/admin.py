@@ -88,13 +88,29 @@ class ComposicaoItemInline(admin.TabularInline):
     can_delete = False
 
 
+class EhServicoFilter(admin.SimpleListFilter):
+    title = 'É serviço?'
+    parameter_name = 'eh_servico'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('sim', 'Sim (é pai de outra composição)'),
+            ('nao', 'Não (é subcomposição)'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'sim':
+            return queryset.filter(itens__isnull=False).distinct()
+        if self.value() == 'nao':
+            return queryset.exclude(id__in=Composicao.objects.filter(itens__isnull=False).values_list('id', flat=True))
+        return queryset
+
 @admin.register(Composicao)
 class ComposicaoAdmin(admin.ModelAdmin):
     list_display = ('codigo', 'descricao', 'unidade', 'etapa_obra')
     search_fields = ('descricao', 'codigo')
-    list_filter = ('etapa_obra',)
+    list_filter = ('etapa_obra', EhServicoFilter)
     inlines = [ComposicaoItemInline]
-
 
 @admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
