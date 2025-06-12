@@ -1,0 +1,149 @@
+'use client';
+
+import { useState } from 'react';
+
+const TIPOS_PISO = [
+  'Cerâmico',
+  'Porcelanato',
+  'Vinílico',
+  'Laminado',
+  'Madeira',
+  'Cimento queimado',
+  'Granilite',
+  'Outro'
+];
+
+export default function Etapa8_Revestimentos({ dados, setDados, etapaAnterior, proximaEtapa }) {
+  const [erro, setErro] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setDados({ ...dados, [name]: value });
+  };
+
+  const validar = () => {
+    if (!dados.tipologia_piso || !dados.area_revestimento) {
+      setErro('Preencha a tipologia e área de revestimento.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleAvancar = () => {
+    if (validar()) proximaEtapa();
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Etapa 8 – Revestimentos</h2>
+      {erro && <p className="text-sm text-red-400">{erro}</p>}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label>
+          <span className="text-sm">Tipologia de piso *</span>
+          <select
+            name="tipologia_piso"
+            value={dados.tipologia_piso || ''}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecione</option>
+            {TIPOS_PISO.map((tipo) => (
+              <option key={tipo} value={tipo}>{tipo}</option>
+            ))}
+          </select>
+        </label>
+
+        <input
+          name="area_revestimento"
+          value={dados.area_revestimento || ''}
+          onChange={handleChange}
+          className="input"
+          placeholder="Área de revestimento cerâmico de parede (m²)"
+        />
+
+        <label>
+          <span className="text-sm">Possui pintura externa?</span>
+          <select
+            name="pintura_externa"
+            value={dados.pintura_externa || ''}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecione</option>
+            <option value="S">Sim</option>
+            <option value="N">Não</option>
+          </select>
+        </label>
+
+        <label>
+          <span className="text-sm">Possui pintura interna?</span>
+          <select
+            name="pintura_interna"
+            value={dados.pintura_interna || ''}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecione</option>
+            <option value="S">Sim</option>
+            <option value="N">Não</option>
+          </select>
+        </label>
+
+        <label>
+          <span className="text-sm">Possui placa de gesso acartonado?</span>
+          <select
+            name="gesso"
+            value={dados.gesso || ''}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecione</option>
+            <option value="Simples">Simples</option>
+            <option value="Duplo">Duplo</option>
+            <option value="N">Não</option>
+          </select>
+        </label>
+
+        <label>
+          <span className="text-sm">Possui esquadrias de madeira?</span>
+          <select
+            name="esquadrias_madeira"
+            value={dados.esquadrias_madeira || ''}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecione</option>
+            <option value="S">Sim</option>
+            <option value="N">Não</option>
+          </select>
+        </label>
+
+        <input
+          name="soleira"
+          value={dados.soleira || ''}
+          onChange={handleChange}
+          className="input"
+          placeholder="Soleira de mármore (m)"
+        />
+
+        <input
+          name="rodape"
+          value={dados.rodape || ''}
+          onChange={handleChange}
+          className="input"
+          placeholder="Rodapé de granito (m)"
+        />
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button onClick={etapaAnterior} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500">
+          Voltar
+        </button>
+        <button onClick={handleAvancar} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Próxima Etapa
+        </button>
+      </div>
+    </div>
+  );
+}

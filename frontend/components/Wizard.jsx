@@ -5,12 +5,17 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { authFetch } from '@/src/utils/authFetch';
 
-// Importações das novas etapas
-import Etapa1_InfoGeralEndereco from './Etapa1_InfoGeralEndereco';
-import Etapa2_CaracteristicasObra from './Etapa2_CaracteristicasObra';
-import Etapa3_Financiamento from './Etapa3_Financiamento';
-import Etapa4_ServicosPreliminares from './Etapa4_ServicosPreliminares';
-import Etapa5_SimulacaoFundacao from './Etapa5_SimulacaoFundacao';
+// Importações das 10 etapas verdadeiras
+import Etapa1 from './Etapa1_InformacoesGerais';
+import Etapa2 from './Etapa2_Fundacao';
+import Etapa3 from './Etapa3_Superestrutura';
+import Etapa4 from './Etapa4_Vedacoes';
+import Etapa5 from './Etapa5_Cobertura';
+import Etapa6 from './Etapa6_Contrapiso';
+import Etapa7 from './Etapa7_Esquadrias';
+import Etapa8 from './Etapa8_Revestimentos';
+import Etapa9 from './Etapa9_Instalacoes';
+import Etapa10 from './Etapa10_MaoDeObraUsuarios';
 
 export default function Wizard() {
   const [etapaAtual, setEtapaAtual] = useState(0);
@@ -21,7 +26,10 @@ export default function Wizard() {
     try {
       const resposta = await authFetch('http://localhost:8000/api/salvar/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Supondo que o token esteja armazenado no localStorage
+         },
         body: JSON.stringify(dadosObra)
       });
 
@@ -35,65 +43,24 @@ export default function Wizard() {
   };
 
   const etapas = [
-    {
-      id: 1,
-      componente: (
-        <Etapa1_InfoGeralEndereco
-          dados={dadosObra}
-          setDados={setDadosObra}
-          etapaAnterior={() => {}}
-          proximaEtapa={() => setEtapaAtual(1)}
-        />
-      )
-    },
-    {
-      id: 2,
-      componente: (
-        <Etapa2_CaracteristicasObra
-          dados={dadosObra}
-          setDados={setDadosObra}
-          etapaAnterior={() => setEtapaAtual(0)}
-          proximaEtapa={() => setEtapaAtual(2)}
-        />
-      )
-    },
-    {
-      id: 3,
-      componente: (
-        <Etapa3_Financiamento
-          dados={dadosObra}
-          setDados={setDadosObra}
-          etapaAnterior={() => setEtapaAtual(1)}
-          proximaEtapa={() => setEtapaAtual(3)}
-        />
-      )
-    },
-    {
-      id: 4,
-      componente: (
-        <Etapa4_ServicosPreliminares
-          dados={dadosObra}
-          setDados={setDadosObra}
-          etapaAnterior={() => setEtapaAtual(2)}
-          proximaEtapa={() => setEtapaAtual(4)}
-        />
-      )
-    },
-    {
-      id: 5,
-      componente: (
-        <Etapa5_SimulacaoFundacao
-          dados={dadosObra}
-          setDados={setDadosObra}
-          etapaAnterior={() => setEtapaAtual(3)}
-          proximaEtapa={salvarObra}
-        />
-      )
-    }
+    { id: 1, componente: Etapa1 },
+    { id: 2, componente: Etapa2 },
+    { id: 3, componente: Etapa3 },
+    { id: 4, componente: Etapa4 },
+    { id: 5, componente: Etapa5 },
+    { id: 6, componente: Etapa6 },
+    { id: 7, componente: Etapa7 },
+    { id: 8, componente: Etapa8 },
+    { id: 9, componente: Etapa9 },
+    { id: 10, componente: Etapa10 },
   ];
 
+  const EtapaAtual = etapas[etapaAtual].componente;
+
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 bg-gray-900 text-white rounded-xl shadow-md">
+    <div className="w-full max-w-5xl mx-auto p-6 bg-gray-900 text-white rounded-xl shadow-md">
+      <h1 className="text-3xl font-bold mb-4">Cadastro de Obra</h1>
+
       <AnimatePresence mode="wait">
         <motion.div
           key={etapaAtual}
@@ -102,9 +69,24 @@ export default function Wizard() {
           exit={{ opacity: 0, x: -100 }}
           transition={{ duration: 0.4 }}
         >
-          {etapas[etapaAtual].componente}
+          <EtapaAtual
+            dados={dadosObra}
+            setDados={setDadosObra}
+            etapaAnterior={() => etapaAtual > 0 && setEtapaAtual(etapaAtual - 1)}
+            proximaEtapa={() => {
+              if (etapaAtual < etapas.length - 1) {
+                setEtapaAtual(etapaAtual + 1);
+              } else {
+                salvarObra();
+              }
+            }}
+          />
         </motion.div>
       </AnimatePresence>
+
+      <div className="text-center text-sm text-gray-400 mt-4">
+        Etapa {etapaAtual + 1} de {etapas.length}
+      </div>
     </div>
   );
 }
