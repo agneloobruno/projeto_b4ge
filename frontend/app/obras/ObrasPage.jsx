@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { authFetch } from '../../src/utils/authFetch';
+import { authFetch } from '../../src/utils/authFetch'
+import AuthGuard from '@/components/AuthGuard'
 
-
-export default function ObrasPage() {
+function ObrasPage() {
   const [obras, setObras] = useState([])
   const [carregando, setCarregando] = useState(true)
 
-  
   useEffect(() => {
     authFetch('http://localhost:8000/api/obras/')
       .then((res) => res.json())
@@ -19,14 +18,13 @@ export default function ObrasPage() {
       })
       .catch(() => setCarregando(false))
   }, [])
+
   return (
     <main className="min-h-screen bg-gray-900 text-white p-8">
       <h1 className="text-3xl font-bold mb-6">Obras Cadastradas</h1>
-
       <Link href="/" className="text-blue-400 underline mb-6 inline-block">
         Voltar para cadastro
       </Link>
-
       {carregando ? (
         <p>Carregando obras...</p>
       ) : obras.length === 0 ? (
@@ -53,5 +51,13 @@ export default function ObrasPage() {
         </div>
       )}
     </main>
+  )
+}
+
+export default function ObrasWrapper() {
+  return (
+    <AuthGuard>
+      <ObrasPage />
+    </AuthGuard>
   )
 }
