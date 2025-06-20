@@ -73,18 +73,29 @@ def salvar_obra(request):
     dados = request.data
     itens = dados.get('itens_lista', [])
 
-    obra = Obras.objects.create(
-        nome=dados['nome'],
-        tipologia=dados['tipologia'],
-        estado=dados['estado'],
-        municipio=dados['municipio'],
-        area_total_construir=dados['area_total_construir']
-    )
+    # Validação básica
+    campos_obrigatorios = ['nome', 'tipologia', 'estado', 'municipio', 'area_total_construir']
+    faltando = [campo for campo in campos_obrigatorios if campo not in dados]
+    if faltando:
+        return Response({"erro": f"Campos obrigatórios ausentes: {', '.join(faltando)}"}, status=400)
+
+    try:
+        obra = Obras.objects.create(
+            nome=dados.get('nome'),
+            tipologia=dados.get('tipologia'),
+            estado=dados.get('estado'),
+            municipio=dados.get('municipio'),
+            area_total_construir=dados.get('area_total_construir')
+        )
+    except Exception as e:
+        return Response({"erro": f"Erro ao criar obra: {str(e)}"}, status=500)
 
     for item in itens:
         try:
             material = Material.objects.get(id=item['material'])
         except Material.DoesNotExist:
+            continue
+        except Exception as e:
             continue
 
         ItemLista.objects.create(
