@@ -1,5 +1,3 @@
-// frontend/src/utils/authFetch.js
-
 export async function authFetch(url, options = {}) {
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
@@ -7,11 +5,11 @@ export async function authFetch(url, options = {}) {
   const headers = {
     ...options.headers,
     Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json", // 🔧 Incluído também aqui
   };
 
   let response = await fetch(url, { ...options, headers });
 
-  // Se não autorizado, tenta renovar o token
   if (response.status === 401 && refreshToken) {
     const refreshRes = await fetch("http://localhost:8000/api/auth/token/refresh/", {
       method: "POST",
@@ -23,14 +21,14 @@ export async function authFetch(url, options = {}) {
       const tokens = await refreshRes.json();
       localStorage.setItem("accessToken", tokens.access);
 
-      // Reenvia a requisição com novo token
       const retryHeaders = {
         ...options.headers,
         Authorization: `Bearer ${tokens.access}`,
+        "Content-Type": "application/json", // 🔧 Aqui também
       };
+
       response = await fetch(url, { ...options, headers: retryHeaders });
     } else {
-      // Expirou o refresh também — logout
       localStorage.clear();
       window.location.href = "/login";
     }
