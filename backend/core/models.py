@@ -44,7 +44,6 @@ class DistanciaTransporte(models.Model):
 
 class Obras(models.Model):
     nome = models.CharField(max_length=100)
-    razao_social = models.CharField(max_length=100, null=True, blank=True)
     tipologia = models.CharField(max_length=50)
     cep = models.CharField(max_length=10, null=True, blank=True)
     estado = models.CharField(max_length=50, null=True, blank=True)
@@ -55,22 +54,9 @@ class Obras(models.Model):
     area_terreno = models.FloatField(null=True, blank=True)
     area_total_construir = models.FloatField(null=True, blank=True)
     area_total_demolir = models.FloatField(null=True, blank=True)
-    custo_inicial_estimado = models.FloatField(null=True, blank=True)
-    custo_final_apurado = models.FloatField(null=True, blank=True)
-    tipo_registro = models.CharField(max_length=50, null=True, blank=True)
-    data_inicio_construcao = models.DateField(null=True, blank=True)
-    data_termino_construcao = models.DateField(null=True, blank=True)
-    sistema_construtivo = models.CharField(max_length=100, null=True, blank=True)
 
-    tipo_empreendimento = models.CharField(max_length=50, null=True, blank=True)
-    segmentacao = models.CharField(max_length=50, null=True, blank=True)
-    padrao_empreendimento = models.CharField(max_length=50, null=True, blank=True)
-    numero_unidades = models.IntegerField(null=True, blank=True)
-    numero_pavimentos = models.IntegerField(null=True, blank=True)
 
-    financiamento_publico = models.BooleanField(default=False)
-    certificacao_obra = models.BooleanField(default=False)
-    certificacao_obra_tipo = models.CharField(max_length=50, null=True, blank=True)
+
 
     def __str__(self):
         return self.nome
