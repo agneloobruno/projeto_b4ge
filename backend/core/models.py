@@ -1,3 +1,5 @@
+# models.py atualizado com melhorias para cálculo de impacto e estrutura relacional
+
 from django.db import models
 
 class Material(models.Model):
@@ -33,7 +35,7 @@ class Cidade(models.Model):
         return f"{self.nome} - {self.estado}"
 
 
-class DistanciaTransporte(models.Model):
+class DistanciaInsumoCidade(models.Model):
     insumo = models.ForeignKey(Insumo, on_delete=models.CASCADE, null=True, blank=True)
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
     km = models.FloatField()
@@ -47,7 +49,7 @@ class Obra(models.Model):
     tipologia = models.CharField(max_length=50)
     cep = models.CharField(max_length=10, null=True, blank=True)
     estado = models.CharField(max_length=50, null=True, blank=True)
-    cidade = models.CharField(max_length=50, null=True, blank=True)
+    cidade = models.ForeignKey(Cidade, on_delete=models.SET_NULL, null=True)
     logradouro = models.CharField(max_length=100, null=True, blank=True)
     complemento = models.CharField(max_length=100, null=True, blank=True)
 
@@ -55,27 +57,17 @@ class Obra(models.Model):
     area_total_construir = models.FloatField(null=True, blank=True)
     area_total_demolir = models.FloatField(null=True, blank=True)
 
-
-
-
     def __str__(self):
         return self.nome
 
     def energia_embutida_total(self):
         total = 0
-        for item in self.itens_lista.filter(tipo="INSUMO"):
-            material = item.insumo.material
-            if item.quantidade and material:
-                total += item.quantidade * material.energia_embutida_mj_kg * (material.fator_manutencao or 1)
+        for item in self.itens_aplicados.all():
+            total += (item.energia_embutida_mj or 0) + (item.energia_transporte_mj or 0) + (item.energia_equip_mj or 0)
         return round(total, 2)
 
     def co2_total(self):
-        total = 0
-        for item in self.itens_lista.filter(tipo="INSUMO"):
-            material = item.insumo.material
-            if item.quantidade and material:
-                total += item.quantidade * material.co2_kg * (material.fator_manutencao or 1)
-        return round(total, 2)
+        return round(sum((item.co2_kg or 0) for item in self.itens_aplicados.all()), 2)
 
 
 class Composicao(models.Model):
@@ -88,7 +80,7 @@ class Composicao(models.Model):
         return f"{self.codigo} - {self.descricao}"
 
 
-class ComposicaoItem(models.Model):
+class ItemDeComposicao(models.Model):
     composicao_pai = models.ForeignKey(Composicao, on_delete=models.CASCADE, related_name='itens')
     insumo = models.ForeignKey(Insumo, on_delete=models.PROTECT, null=True, blank=True, related_name="composicao_items")
     subcomposicao = models.ForeignKey(Composicao, on_delete=models.SET_NULL, null=True, blank=True, related_name="como_subcomposicao")
@@ -96,17 +88,12 @@ class ComposicaoItem(models.Model):
     proporcao = models.FloatField(null=True, blank=True)
     valido = models.BooleanField(default=True)
 
-    quantidade = models.FloatField(null=True, blank=True)
-    energia_embutida_mj = models.FloatField(null=True, blank=True)
-    energia_embutida_gj = models.FloatField(null=True, blank=True)
-    co2_kg = models.FloatField(null=True, blank=True)
-
     def __str__(self):
         return f"{self.composicao_pai.codigo} → {self.insumo or self.subcomposicao}"
 
 
-class ItemLista(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="itens_lista")
+class InsumoAplicado(models.Model):
+    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="itens_aplicados")
     tipo = models.CharField(max_length=20, choices=[("INSUMO", "INSUMO"), ("COMPOSICAO", "COMPOSICAO")])
     etapa_obra = models.CharField(max_length=100)
 
@@ -138,8 +125,8 @@ class ItemLista(models.Model):
 
 
 class EtapaConstrutiva(models.Model):
-    obra = models.ForeignKey('Obra', on_delete=models.CASCADE, related_name='etapas_tecnicas')
-    nome = models.CharField(max_length=100)  # Ex: "Fundacao", "Cobertura"
+    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name='etapas_tecnicas')
+    nome = models.CharField(max_length=100)
     dados = models.JSONField()
     criada_em = models.DateTimeField(auto_now_add=True)
 
