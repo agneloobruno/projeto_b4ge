@@ -1,4 +1,4 @@
-from core.models import Composicao, ComposicaoItem
+from core.models import Composicao, ItemDeComposicao
 
 def calcular_impacto(composicao: Composicao, multiplicador=1.0, nivel=0, visitados=None) -> dict:
     """
