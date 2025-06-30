@@ -1,9 +1,9 @@
 from django import forms
-from .models import Obras, ItemLista
+from .models import Obra, ItemLista
 
 class ObraForm(forms.ModelForm):
     class Meta:
-        model = Obras
+        model = Obra
         fields = ['nome', 'tipologia', 'estado', 'cidade', 'area_total_construir']
 
 class ItemListaForm(forms.ModelForm):

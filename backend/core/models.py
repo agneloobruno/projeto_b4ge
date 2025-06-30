@@ -42,7 +42,7 @@ class DistanciaTransporte(models.Model):
         return f"{self.insumo.descricao} -> {self.cidade.nome}: {self.km} km"
 
 
-class Obras(models.Model):
+class Obra(models.Model):
     nome = models.CharField(max_length=100)
     tipologia = models.CharField(max_length=50)
     cep = models.CharField(max_length=10, null=True, blank=True)
@@ -106,7 +106,7 @@ class ComposicaoItem(models.Model):
 
 
 class ItemLista(models.Model):
-    obra = models.ForeignKey(Obras, on_delete=models.CASCADE, related_name="itens_lista")
+    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="itens_lista")
     tipo = models.CharField(max_length=20, choices=[("INSUMO", "INSUMO"), ("COMPOSICAO", "COMPOSICAO")])
     etapa_obra = models.CharField(max_length=100)
 
@@ -137,8 +137,8 @@ class ItemLista(models.Model):
         return f"{self.obra.nome} - {self.tipo} - {self.insumo or self.composicao}"
 
 
-class EtapaObra(models.Model):
-    obra = models.ForeignKey('Obras', on_delete=models.CASCADE, related_name='etapas_tecnicas')
+class EtapaConstrutiva(models.Model):
+    obra = models.ForeignKey('Obra', on_delete=models.CASCADE, related_name='etapas_tecnicas')
     nome = models.CharField(max_length=100)  # Ex: "Fundacao", "Cobertura"
     dados = models.JSONField()
     criada_em = models.DateTimeField(auto_now_add=True)

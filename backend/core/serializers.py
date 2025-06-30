@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Obras, Material, Insumo, ItemLista, Composicao, ComposicaoItem
+from .models import Obra, Material, Insumo, ItemLista, Composicao, ComposicaoItem
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -42,13 +42,13 @@ class ItemListaSerializer(serializers.ModelSerializer):
 
 
 
-class ObrasSerializer(serializers.ModelSerializer):
+class ObraSerializer(serializers.ModelSerializer):
     energia_embutida_total = serializers.SerializerMethodField()
     co2_total = serializers.SerializerMethodField()
     itens_lista = ItemListaSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Obras
+        model = Obra
         fields = '__all__'
 
     def get_energia_embutida_total(self, obj):

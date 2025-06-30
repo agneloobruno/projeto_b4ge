@@ -1,9 +1,9 @@
 from django.test import TestCase
-from core.models import Obras
+from core.models import Obra
 
 class ObraTestCase(TestCase):
     def test_criacao_obra(self):
-        obra = Obras.objects.create(
+        obra = Obra.objects.create(
             nome="Teste Residencial",
             tipologia="Residencial",
             estado="MT",

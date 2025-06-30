@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import Obras, Material, ItemLista, Composicao
+from .models import Obra, Material, EtapaConstrutiva, Composicao
 from .forms import ObraForm
 from django.http import JsonResponse
-from .serializers import ObrasSerializer, MaterialSerializer
+from .serializers import ObraSerializer, MaterialSerializer
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,8 +11,8 @@ from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 
 def home(request):
-    obras = Obras.objects.all()
-    return render(request, 'core/home.html', {'obras': obras})
+    obra = Obra.objects.all()
+    return render(request, 'core/home.html', {'obras': obra})
 
 def nova_obra(request):
     form = ObraForm(request.POST or None)
@@ -80,7 +80,7 @@ def salvar_obra(request):
         return Response({"erro": f"Campos obrigatórios ausentes: {', '.join(faltando)}"}, status=400)
 
     try:
-        obra = Obras.objects.create(
+        obra = Obra.objects.create(
             nome=dados.get('nome'),
             tipologia=dados.get('tipologia'),
             estado=dados.get('estado'),
@@ -90,18 +90,26 @@ def salvar_obra(request):
     except Exception as e:
         return Response({"erro": f"Erro ao criar obra: {str(e)}"}, status=500)
 
+    for etapa in etapas_tecnicas:
+        nome = etapa.get('nome')
+        dados_json = etapa.get('dados')
+        if nome and dados_json:
+            EtapaConstrutiva.objects.create(obra=obra, nome=nome, dados=dados_json)
+
+    return Response({"message": "Obra e etapas salvas com sucesso!"}, status=status.HTTP_201_CREATED)
+
     # Salva cada etapa técnica recebida
     for etapa in etapas_tecnicas:
         nome = etapa.get('nome')
         dados_json = etapa.get('dados')
         if nome and dados_json:
-            EtapaObra.objects.create(obra=obra, nome=nome, dados=dados_json)
+            EtapaConstrutiva.objects.create(obra=obra, nome=nome, dados=dados_json)
 
     return Response({"message": "Obra e etapas salvas com sucesso!", "obra_id": obra.id}, status=status.HTTP_201_CREATED)
 
 class ObraViewSet(viewsets.ModelViewSet):
-    queryset = Obras.objects.all()
-    serializer_class = ObrasSerializer
+    queryset = Obra.objects.all()
+    serializer_class = ObraSerializer
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):

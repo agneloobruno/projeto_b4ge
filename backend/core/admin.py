@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
 from .models import (
-    Obras, Material, Insumo, ItemLista, Cidade,
+    Obra, Material, Insumo, ItemLista, Cidade,
     DistanciaTransporte, Composicao, ComposicaoItem
 )
 
@@ -20,8 +20,8 @@ class ItemListaInline(admin.TabularInline):
     show_change_link = True
 
 
-@admin.register(Obras)
-class ObrasAdmin(admin.ModelAdmin):
+@admin.register(Obra)
+class ObraAdmin(admin.ModelAdmin):
     list_display = (
         'nome', 'tipologia', 'estado', 'cidade',
         'area_total_construir',
