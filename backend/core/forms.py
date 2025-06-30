@@ -4,7 +4,7 @@ from .models import Obras, ItemLista
 class ObraForm(forms.ModelForm):
     class Meta:
         model = Obras
-        fields = ['nome', 'tipologia', 'estado', 'municipio', 'area_total_construir']
+        fields = ['nome', 'tipologia', 'estado', 'cidade', 'area_total_construir']
 
 class ItemListaForm(forms.ModelForm):
     class Meta:

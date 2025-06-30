@@ -47,7 +47,7 @@ class Obras(models.Model):
     tipologia = models.CharField(max_length=50)
     cep = models.CharField(max_length=10, null=True, blank=True)
     estado = models.CharField(max_length=50, null=True, blank=True)
-    municipio = models.CharField(max_length=50, null=True, blank=True)
+    cidade = models.CharField(max_length=50, null=True, blank=True)
     logradouro = models.CharField(max_length=100, null=True, blank=True)
     complemento = models.CharField(max_length=100, null=True, blank=True)
 
@@ -135,3 +135,13 @@ class ItemLista(models.Model):
 
     def __str__(self):
         return f"{self.obra.nome} - {self.tipo} - {self.insumo or self.composicao}"
+
+
+class EtapaObra(models.Model):
+    obra = models.ForeignKey('Obras', on_delete=models.CASCADE, related_name='etapas_tecnicas')
+    nome = models.CharField(max_length=100)  # Ex: "Fundacao", "Cobertura"
+    dados = models.JSONField()
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.obra.nome} - {self.nome}"

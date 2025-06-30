@@ -71,10 +71,10 @@ def simular_obra(request):
 @permission_classes([IsAuthenticated])
 def salvar_obra(request):
     dados = request.data
-    itens = dados.get('itens_lista', [])
+    etapas_tecnicas = dados.get('etapas_tecnicas', [])
 
     # Validação básica
-    campos_obrigatorios = ['nome', 'tipologia', 'estado', 'municipio', 'area_total_construir']
+    campos_obrigatorios = ['nome', 'tipologia', 'estado', 'cidade', 'area_total_construir']
     faltando = [campo for campo in campos_obrigatorios if campo not in dados]
     if faltando:
         return Response({"erro": f"Campos obrigatórios ausentes: {', '.join(faltando)}"}, status=400)
@@ -84,35 +84,20 @@ def salvar_obra(request):
             nome=dados.get('nome'),
             tipologia=dados.get('tipologia'),
             estado=dados.get('estado'),
-            municipio=dados.get('municipio'),
+            cidade=dados.get('cidade'),
             area_total_construir=dados.get('area_total_construir')
         )
     except Exception as e:
         return Response({"erro": f"Erro ao criar obra: {str(e)}"}, status=500)
 
-    for item in itens:
-        try:
-            material = Material.objects.get(id=item['material'])
-        except Material.DoesNotExist:
-            continue
-        except Exception as e:
-            continue
+    # Salva cada etapa técnica recebida
+    for etapa in etapas_tecnicas:
+        nome = etapa.get('nome')
+        dados_json = etapa.get('dados')
+        if nome and dados_json:
+            EtapaObra.objects.create(obra=obra, nome=nome, dados=dados_json)
 
-        ItemLista.objects.create(
-            obra=obra,
-            tipo="INSUMO",
-            etapa_obra=item.get("etapa_obra", "Fundação"),
-            material=material,
-            unidade=item.get("unidade", "kg"),
-            quantidade=item.get("quantidade", 0),
-            proporcao=item.get("proporcao", 0),
-            energia_embutida_mj=item.get("energia_embutida_mj", 0),
-            energia_embutida_gj=item.get("energia_embutida_mj", 0) / 1000,
-            co2_kg=item.get("co2", 0),
-            equivalente_kg=item.get("quantidade", 0)
-        )
-
-    return Response({"message": "Obra salva com sucesso!"}, status=status.HTTP_201_CREATED)
+    return Response({"message": "Obra e etapas salvas com sucesso!", "obra_id": obra.id}, status=status.HTTP_201_CREATED)
 
 class ObraViewSet(viewsets.ModelViewSet):
     queryset = Obras.objects.all()

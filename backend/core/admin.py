@@ -23,13 +23,13 @@ class ItemListaInline(admin.TabularInline):
 @admin.register(Obras)
 class ObrasAdmin(admin.ModelAdmin):
     list_display = (
-        'nome', 'tipologia', 'estado', 'municipio',
+        'nome', 'tipologia', 'estado', 'cidade',
         'area_total_construir',
         'co2_total'
     )
     inlines = [ItemListaInline]
-    search_fields = ('nome', 'tipologia', 'municipio')
-    list_filter = ('tipologia', 'estado', 'municipio')
+    search_fields = ('nome', 'tipologia', 'cidade')
+    list_filter = ('tipologia', 'estado', 'cidade')
 
 
 @admin.register(Material)
