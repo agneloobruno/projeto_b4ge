@@ -1,40 +1,40 @@
 descricao,erro
-Tijolo ,name 'DistanciaTransporte' is not defined
-Areia,name 'DistanciaTransporte' is not defined
-Cimento,name 'DistanciaTransporte' is not defined
-Cal,name 'DistanciaTransporte' is not defined
-Aço CA-50,name 'DistanciaTransporte' is not defined
-Alumínio,name 'DistanciaTransporte' is not defined
-Madeira,name 'DistanciaTransporte' is not defined
-Brita,name 'DistanciaTransporte' is not defined
-Telha fibrocimento,name 'DistanciaTransporte' is not defined
-Tinta PVA,name 'DistanciaTransporte' is not defined
-Tinta acrílica,name 'DistanciaTransporte' is not defined
-Tinta óleo,name 'DistanciaTransporte' is not defined
-Argamassa,name 'DistanciaTransporte' is not defined
-"Cerâmica de revestimento, 45 x 45",name 'DistanciaTransporte' is not defined
-Concreto simples,name 'DistanciaTransporte' is not defined
-Gesso,name 'DistanciaTransporte' is not defined
-Conjunto fechadura+dobradiça,name 'DistanciaTransporte' is not defined
-Vidro Plano,name 'DistanciaTransporte' is not defined
-Cobre,name 'DistanciaTransporte' is not defined
-Tubo PVC,name 'DistanciaTransporte' is not defined
-Granito,name 'DistanciaTransporte' is not defined
-Polietileno,name 'DistanciaTransporte' is not defined
-Cerâmica branca,name 'DistanciaTransporte' is not defined
-Latão,name 'DistanciaTransporte' is not defined
-Lampada fluorescente,name 'DistanciaTransporte' is not defined
-Polipropileno,name 'DistanciaTransporte' is not defined
-PTFE,name 'DistanciaTransporte' is not defined
-solvente,name 'DistanciaTransporte' is not defined
-"Placa OSB 1,2 x 2,4 x 0,1",name 'DistanciaTransporte' is not defined
-Montante 90,name 'DistanciaTransporte' is not defined
-Guia 90,name 'DistanciaTransporte' is not defined
-"Placa cimentícia 1,2 x 2,4 x 0,1",name 'DistanciaTransporte' is not defined
-"Placa drywall 1,2 x 2,4 x 0,1",name 'DistanciaTransporte' is not defined
-Telha cerâmica,name 'DistanciaTransporte' is not defined
-Cola a base de PVA,name 'DistanciaTransporte' is not defined
-Poliestireno expandido,name 'DistanciaTransporte' is not defined
-Massa corrida a base de PVA,name 'DistanciaTransporte' is not defined
-Bloco de Concreto,name 'DistanciaTransporte' is not defined
-Tinta óleo,name 'DistanciaTransporte' is not defined
+Tijolo ,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Areia,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Cimento,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Cal,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Aço CA-50,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Alumínio,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Madeira,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Brita,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Telha fibrocimento,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Tinta PVA,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Tinta acrílica,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Tinta óleo,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Argamassa,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+"Cerâmica de revestimento, 45 x 45","Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Concreto simples,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Gesso,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Conjunto fechadura+dobradiça,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Vidro Plano,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Cobre,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Tubo PVC,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Granito,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Polietileno,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Cerâmica branca,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Latão,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Lampada fluorescente,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Polipropileno,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+PTFE,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+solvente,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+"Placa OSB 1,2 x 2,4 x 0,1","Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Montante 90,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Guia 90,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+"Placa cimentícia 1,2 x 2,4 x 0,1","Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+"Placa drywall 1,2 x 2,4 x 0,1","Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Telha cerâmica,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Cola a base de PVA,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Poliestireno expandido,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Massa corrida a base de PVA,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Bloco de Concreto,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"
+Tinta óleo,"Cannot resolve keyword 'material' into field. Choices are: cidade, cidade_id, id, insumo, insumo_id, km"

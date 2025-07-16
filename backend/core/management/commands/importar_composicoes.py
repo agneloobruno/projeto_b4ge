@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from core.models import Composicao, ComposicaoItem, Insumo
+from core.models import Composicao, ItemDeComposicao, Insumo
 import pandas as pd
 import os
 import unicodedata
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         codigo=cod,
                         defaults={"descricao": descricao, "unidade": unidade}
                     )
-                    ComposicaoItem.objects.update_or_create(
+                    ItemDeComposicao.objects.update_or_create(
                         composicao_pai=composicao_pai,
                         subcomposicao=sub,
                         defaults={
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 else:
                     insumo = Insumo.objects.filter(codigo_sinapi=cod).first()
                     if insumo:
-                        ComposicaoItem.objects.update_or_create(
+                        ItemDeComposicao.objects.update_or_create(
                             composicao_pai=composicao_pai,
                             insumo=insumo,
                             defaults={
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                 erros.append((descricao or "N/D", str(e)))
 
         self.stdout.write(self.style.SUCCESS(f"\n✅ {total_linhas} itens processados."))
-        self.stdout.write(self.style.SUCCESS(f"📦 {itens_adicionados} ComposicaoItems adicionados."))
+        self.stdout.write(self.style.SUCCESS(f"📦 {itens_adicionados} ItemDeComposicao adicionados."))
 
         if erros:
             self.stdout.write(self.style.WARNING(f"\n⚠️ {len(erros)} erros durante a importação. Primeiros 5 exemplos:"))
