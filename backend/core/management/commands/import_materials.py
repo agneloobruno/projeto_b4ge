@@ -85,7 +85,7 @@ class Command(BaseCommand):
                 if nome_cidade:
                     cidade, _ = Cidade.objects.get_or_create(nome=nome_cidade)
                     distancia = self.safe_float(row.get('DISTANCIA_KM'))
-                    DistanciaTransporte.objects.update_or_create(
+                    DistanciaInsumoCidade.objects.update_or_create(
                         cidade=cidade,
                         material=material,
                         defaults={'km': distancia}
