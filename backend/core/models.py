@@ -137,3 +137,22 @@ class EtapaConstrutiva(models.Model):
 
     def __str__(self):
         return f"{self.obra.nome} - {self.nome}"
+    
+
+class ImpactoInsumoComposicao(models.Model):
+    composicao_pai = models.ForeignKey(Composicao, on_delete=models.CASCADE)
+    insumo = models.ForeignKey('Insumo', on_delete=models.CASCADE)
+    unidade = models.CharField(max_length=10)
+    proporcao = models.FloatField()
+
+    quantidade = models.FloatField(null=True, blank=True)
+    energia_embutida_total = models.FloatField(null=True, blank=True)
+    carbono_embutido = models.FloatField(null=True, blank=True)
+    carbono_transporte = models.FloatField(null=True, blank=True)
+    carbono_manutencao = models.FloatField(null=True, blank=True)
+    carbono_despesa = models.FloatField(null=True, blank=True)
+    carbono_total = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.insumo} na {self.composicao_pai}"
+
