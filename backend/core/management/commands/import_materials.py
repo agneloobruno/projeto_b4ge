@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from core.models import Material, Cidade, DistanciaTransporte
+from core.models import Material, Cidade, DistanciaInsumoCidade
 import pandas as pd
 import os
 import unicodedata
