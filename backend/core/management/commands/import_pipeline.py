@@ -12,9 +12,7 @@ class Command(BaseCommand):
             ("Importando dados SINAPI auxiliares", "import_insumos_sinapi"),
             ("Importando aba Lista (B4Ge)", "import_lista_b4ge"),
             ("Marcando composições cíclicas", "marcar_itens_ciclicos"),
-            ("Verificando ciclos", "verificar_ciclos"),
-            ("Atualizando impacto ambiental", "atualizar_impacto"),
-            ("Executando diagnóstico", "diagnostico_impacto")
+            ("Verificando ciclos", "verificar_ciclos")
         ]
 
         for descricao, comando in steps:

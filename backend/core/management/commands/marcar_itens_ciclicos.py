@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
-from core.models import Composicao, ComposicaoItem
+from core.models import Composicao, ItemDeComposicao
 
 class Command(BaseCommand):
-    help = "Marca como invalido os ComposicaoItem que causam ciclos diretos ou indiretos"
+    help = "Marca como invalido os ItemDeComposicao que causam ciclos diretos ou indiretos"
 
     def detectar_ciclos(self, composicao, visitados=None, caminho=None):
         if visitados is None:
@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 for i in range(len(caminho) - 1):
                     pai = caminho[i]
                     filho = caminho[i + 1]
-                    item = ComposicaoItem.objects.filter(
+                    item = ItemDeComposicao.objects.filter(
                         composicao_pai__codigo=pai,
                         subcomposicao__codigo=filho,
                         valido=True
@@ -55,4 +55,4 @@ class Command(BaseCommand):
             for i, (pai, filho, caminho) in enumerate(ciclos_detectados, 1):
                 self.stdout.write(f"{i}. {' → '.join(caminho)} → marcado como inválido: {pai} → {filho}")
 
-        self.stdout.write(self.style.SUCCESS(f"\n✅ {total_marcados} ComposicaoItem(s) foram marcados como inválidos."))
+        self.stdout.write(self.style.SUCCESS(f"\n✅ {total_marcados} ItemDeComposicao(s) foram marcados como inválidos."))
