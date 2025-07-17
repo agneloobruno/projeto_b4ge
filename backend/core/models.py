@@ -76,13 +76,21 @@ class Obra(models.Model):
 
 
 class Composicao(models.Model):
+    TIPO_CHOICES = [
+        ("SERVICO", "Serviço"),
+        ("COMPOSICAO", "Composição"),
+        ("INSUMO", "Insumo"),
+    ]
+
+    tipo = models.CharField(max_length=15, choices=TIPO_CHOICES, default="COMPOSICAO")
     codigo = models.CharField(max_length=50, unique=True)
     descricao = models.TextField()
     unidade = models.CharField(max_length=10)
     etapa_obra = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.codigo} - {self.descricao}"
+        return f"{self.codigo} - {self.descricao} ({self.get_tipo_display()})"
+
 
 
 class ItemDeComposicao(models.Model):

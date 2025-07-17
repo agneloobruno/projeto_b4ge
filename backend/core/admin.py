@@ -5,7 +5,19 @@ from .models import (
     DistanciaInsumoCidade, Composicao, ItemDeComposicao
 )
 
-# Filtro personalizado para Composição
+
+class InsumoAplicadoInline(admin.TabularInline):
+    model = InsumoAplicado
+    extra = 0
+    fields = (
+        'tipo', 'etapa_obra', 'insumo', 'composicao', 'unidade',
+        'quantidade', 'proporcao', 'energia_embutida_gj', 'co2_kg'
+    )
+    readonly_fields = ('energia_embutida_gj', 'co2_kg')
+    can_delete = False
+    show_change_link = True
+    
+# Filtro personalizado: define o que a composição contém
 class TipoItemFilter(admin.SimpleListFilter):
     title = 'Contém'
     parameter_name = 'tipo_item'
@@ -37,64 +49,7 @@ class TipoItemFilter(admin.SimpleListFilter):
             return queryset.exclude(itens__isnull=False)
         return queryset
 
-
-class InsumoAplicadoInline(admin.TabularInline):
-    model = InsumoAplicado
-    extra = 0
-    fields = (
-        'tipo', 'etapa_obra', 'insumo', 'composicao', 'unidade',
-        'quantidade', 'proporcao', 'energia_embutida_gj', 'co2_kg'
-    )
-    readonly_fields = ('energia_embutida_gj', 'co2_kg')
-    can_delete = False
-    show_change_link = True
-
-
-@admin.register(Obra)
-class ObraAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipologia', 'estado', 'cidade', 'area_total_construir', 'co2_total')
-    inlines = [InsumoAplicadoInline]
-    search_fields = ('nome', 'tipologia')
-    list_filter = ('tipologia', 'estado')
-
-
-@admin.register(Material)
-class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('descricao', 'densidade', 'energia_embutida_mj_kg', 'co2_kg')
-    search_fields = ('descricao',)
-    list_filter = ('referencia',)
-
-
-@admin.register(Insumo)
-class InsumoAdmin(admin.ModelAdmin):
-    list_display = ('codigo_sinapi', 'descricao', 'unidade', 'material')
-    search_fields = ('codigo_sinapi', 'descricao')
-    list_filter = ('unidade', 'material')
-
-
-@admin.register(InsumoAplicado)
-class InsumoAplicadoAdmin(admin.ModelAdmin):
-    list_display = (
-        'obra', 'tipo', 'etapa_obra', 'insumo', 'composicao', 'unidade', 'quantidade', 'energia_embutida_gj', 'co2_kg'
-    )
-    search_fields = ('obra__nome', 'insumo__descricao')
-    list_filter = ('obra', 'tipo', 'etapa_obra')
-    readonly_fields = (
-        'energia_embutida_mj', 'energia_embutida_gj',
-        'energia_transporte_mj', 'energia_transporte_gj',
-        'energia_equip_mj', 'energia_equip_gj', 'co2_kg'
-    )
-
-
-class ItemDeComposicaoInline(admin.TabularInline):
-    model = ItemDeComposicao
-    fk_name = 'composicao_pai'
-    extra = 0
-    fields = ('insumo', 'subcomposicao', 'quantidade', 'proporcao', 'unidade')
-    autocomplete_fields = ('insumo', 'subcomposicao')
-    can_delete = False
-
-
+# Filtro personalizado: define se a composição é um serviço ou subcomposição
 class TipoComposicaoFilter(admin.SimpleListFilter):
     title = 'Tipo'
     parameter_name = 'tipo_composicao'
@@ -107,13 +62,40 @@ class TipoComposicaoFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'servico':
-            # Serviços: composições que não aparecem como subcomposição em nenhum item
             return queryset.exclude(como_subcomposicao__isnull=False)
         elif self.value() == 'composicao':
-            # Composições: composições que são chamadas como subcomposição
             return queryset.filter(como_subcomposicao__isnull=False).distinct()
         return queryset
 
+# Inline para mostrar os insumos e subcomposições
+class ItemDeComposicaoInline(admin.TabularInline):
+    model = ItemDeComposicao
+    fk_name = 'composicao_pai'
+    extra = 0
+    fields = ('codigo', 'descricao', 'tipo', 'unidade', 'proporcao')
+    readonly_fields = ('codigo', 'descricao', 'tipo')
+    can_delete = False
+
+    def codigo(self, obj):
+        if obj.insumo:
+            return obj.insumo.codigo_sinapi
+        elif obj.subcomposicao:
+            return obj.subcomposicao.codigo
+        return "—"
+
+    def descricao(self, obj):
+        if obj.insumo:
+            return obj.insumo.descricao
+        elif obj.subcomposicao:
+            return obj.subcomposicao.descricao
+        return "—"
+
+    def tipo(self, obj):
+        if obj.insumo:
+            return "INSUMO"
+        elif obj.subcomposicao:
+            return "COMPOSICAO"
+        return "—"
 
 @admin.register(Composicao)
 class ComposicaoAdmin(admin.ModelAdmin):
@@ -142,14 +124,45 @@ class ComposicaoAdmin(admin.ModelAdmin):
         return "Serviço"
     tipo_composicao.short_description = "Tipo"
 
+@admin.register(Obra)
+class ObraAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'tipologia', 'estado', 'cidade', 'area_total_construir', 'co2_total')
+    inlines = [InsumoAplicadoInline]
+    search_fields = ('nome', 'tipologia')
+    list_filter = ('tipologia', 'estado')
 
+
+
+@admin.register(InsumoAplicado)
+class InsumoAplicadoAdmin(admin.ModelAdmin):
+    list_display = (
+        'obra', 'tipo', 'etapa_obra', 'insumo', 'composicao', 'unidade', 'quantidade', 'energia_embutida_gj', 'co2_kg'
+    )
+    search_fields = ('obra__nome', 'insumo__descricao')
+    list_filter = ('obra', 'tipo', 'etapa_obra')
+    readonly_fields = (
+        'energia_embutida_mj', 'energia_embutida_gj',
+        'energia_transporte_mj', 'energia_transporte_gj',
+        'energia_equip_mj', 'energia_equip_gj', 'co2_kg'
+    )
+
+@admin.register(Material)
+class MaterialAdmin(admin.ModelAdmin):
+    list_display = ('descricao', 'densidade', 'energia_embutida_mj_kg', 'co2_kg')
+    search_fields = ('descricao',)
+    list_filter = ('referencia',)
+
+@admin.register(Insumo)
+class InsumoAdmin(admin.ModelAdmin):
+    list_display = ('codigo_sinapi', 'descricao', 'unidade', 'material')
+    search_fields = ('codigo_sinapi', 'descricao')
+    list_filter = ('unidade', 'material')
 
 @admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
     list_display = ('nome', 'estado')
     search_fields = ('nome',)
     list_filter = ('estado',)
-
 
 @admin.register(DistanciaInsumoCidade)
 class DistanciaInsumoCidadeAdmin(admin.ModelAdmin):
