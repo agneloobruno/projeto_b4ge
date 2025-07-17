@@ -19,7 +19,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Arquivo não encontrado: {file_path}"))
             return
 
-        df = pd.read_excel(file_path, sheet_name="Lista", header=0)
+        df = pd.read_excel(file_path, sheet_name="Lista")
         df.columns = df.columns.str.strip().str.upper()
 
         composicao_pai = None
@@ -27,19 +27,20 @@ class Command(BaseCommand):
         itens_adicionados = 0
         erros = []
 
-        for idx, row in df.iterrows():
+        for _, row in df.iterrows():
             try:
                 cod = str(row.get("CÓD. SINAPI") or '').strip()
                 descricao = str(row.get("DESCRIÇÃO") or '').strip()
                 unidade = str(row.get("UNIDADE") or '').strip()
                 etapa_obra = str(row.get("ETAPAS DA OBRA") or '').strip()
                 proporcao = row.get("PROPORÇÃO")
+                nivel_coluna_5 = row.get(df.columns[4])  # 5ª coluna visualmente
+
                 classe1 = self.normalize(row.get("CLASSE 1"))
                 classe2 = self.normalize(row.get("CLASSE 2"))
-                coluna5 = row.iloc[4]  # A "coluna 5" para identificar o serviço
 
-                # Se a coluna 5 está preenchida, estamos iniciando um novo serviço (composição pai)
-                if pd.notna(coluna5) and cod:
+                # Se a coluna 5 está preenchida, é uma composição pai (serviço)
+                if pd.notna(nivel_coluna_5) and cod:
                     composicao_pai, _ = Composicao.objects.get_or_create(
                         codigo=cod,
                         defaults={
@@ -53,11 +54,13 @@ class Command(BaseCommand):
                         composicao_pai.save()
                     continue
 
+                # Se for linha sem proporção ou sem composição pai definida, ignorar
                 if not composicao_pai or pd.isna(proporcao):
                     continue
 
                 proporcao = float(proporcao)
 
+                # Subcomposição
                 if "COMPOSICAO" in classe1 or "COMPOSICAO" in classe2:
                     sub, _ = Composicao.objects.get_or_create(
                         codigo=cod,
@@ -69,6 +72,7 @@ class Command(BaseCommand):
                         defaults={"proporcao": proporcao, "unidade": unidade}
                     )
                 else:
+                    # Insumo
                     insumo = Insumo.objects.filter(codigo_sinapi=cod).first()
                     if insumo:
                         ItemDeComposicao.objects.update_or_create(
@@ -76,7 +80,6 @@ class Command(BaseCommand):
                             insumo=insumo,
                             defaults={"proporcao": proporcao, "unidade": unidade}
                         )
-
                 itens_adicionados += 1
                 total_linhas += 1
 
