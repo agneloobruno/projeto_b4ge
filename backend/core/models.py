@@ -26,7 +26,8 @@ class Insumo(models.Model):
     codigo_sinapi = models.CharField(max_length=20, unique=True)
     descricao = models.TextField()
     unidade = models.CharField(max_length=10)
-    material = models.ForeignKey(Material, on_delete=models.PROTECT)
+    material = models.ForeignKey(Material, on_delete=models.PROTECT, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.codigo_sinapi} - {self.descricao}"

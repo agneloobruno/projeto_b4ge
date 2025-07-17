@@ -29,17 +29,16 @@ class Command(BaseCommand):
 
         for _, row in df.iterrows():
             try:
-                cod = str(row.get("CÓD. SINAPI") or '').strip()
+                cod = self.normalize(str(row.get("CÓD. SINAPI") or ''))
                 descricao = str(row.get("DESCRIÇÃO") or '').strip()
                 unidade = str(row.get("UNIDADE") or '').strip()
                 etapa_obra = str(row.get("ETAPAS DA OBRA") or '').strip()
-                proporcao = row.get("PROPORÇÃO")
-                nivel_coluna_5 = row.get(df.columns[4])  # 5ª coluna visualmente
-
+                proporcao_raw = row.get("PROPORÇÃO")
+                nivel_coluna_5 = row.get("TIPO (INTERFACE DO USUÁRIO)")  # coluna 5
                 classe1 = self.normalize(row.get("CLASSE 1"))
                 classe2 = self.normalize(row.get("CLASSE 2"))
 
-                # Se a coluna 5 está preenchida, é uma composição pai (serviço)
+                # Identifica composição pai
                 if pd.notna(nivel_coluna_5) and cod:
                     composicao_pai, _ = Composicao.objects.get_or_create(
                         codigo=cod,
@@ -54,13 +53,19 @@ class Command(BaseCommand):
                         composicao_pai.save()
                     continue
 
-                # Se for linha sem proporção ou sem composição pai definida, ignorar
-                if not composicao_pai or pd.isna(proporcao):
+                # Ignora se não tem composição atual ou proporção
+                if not composicao_pai or pd.isna(proporcao_raw):
                     continue
 
-                proporcao = float(proporcao)
+                try:
+                    proporcao = float(str(proporcao_raw).replace(",", "."))
+                except (TypeError, ValueError):
+                    continue
 
-                # Subcomposição
+                if not cod:
+                    continue
+
+                # É subcomposição
                 if "COMPOSICAO" in classe1 or "COMPOSICAO" in classe2:
                     sub, _ = Composicao.objects.get_or_create(
                         codigo=cod,
@@ -72,14 +77,21 @@ class Command(BaseCommand):
                         defaults={"proporcao": proporcao, "unidade": unidade}
                     )
                 else:
-                    # Insumo
+                    # É insumo
                     insumo = Insumo.objects.filter(codigo_sinapi=cod).first()
-                    if insumo:
-                        ItemDeComposicao.objects.update_or_create(
-                            composicao_pai=composicao_pai,
-                            insumo=insumo,
-                            defaults={"proporcao": proporcao, "unidade": unidade}
+                    if not insumo:
+                        # Cria insumo automaticamente
+                        insumo = Insumo.objects.create(
+                            codigo_sinapi=cod,
+                            descricao=descricao,
+                            unidade=unidade
                         )
+                    ItemDeComposicao.objects.update_or_create(
+                        composicao_pai=composicao_pai,
+                        insumo=insumo,
+                        defaults={"proporcao": proporcao, "unidade": unidade}
+                    )
+
                 itens_adicionados += 1
                 total_linhas += 1
 
