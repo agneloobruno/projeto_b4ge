@@ -38,8 +38,11 @@ class Command(BaseCommand):
                 classe1 = self.normalize(row.get("CLASSE 1"))
                 classe2 = self.normalize(row.get("CLASSE 2"))
 
+                if not cod:
+                    continue  # Código é essencial
+
                 # Identifica composição pai
-                if pd.notna(nivel_coluna_5) and cod:
+                if pd.notna(nivel_coluna_5):
                     composicao_pai, _ = Composicao.objects.get_or_create(
                         codigo=cod,
                         defaults={
@@ -53,17 +56,13 @@ class Command(BaseCommand):
                         composicao_pai.save()
                     continue
 
-                # Ignora se não tem composição atual ou proporção
                 if not composicao_pai or pd.isna(proporcao_raw):
-                    continue
+                    continue  # Ignora linhas mal formatadas
 
                 try:
                     proporcao = float(str(proporcao_raw).replace(",", "."))
                 except (TypeError, ValueError):
-                    continue
-
-                if not cod:
-                    continue
+                    continue  # Ignora proporções inválidas
 
                 # É subcomposição
                 if "COMPOSICAO" in classe1 or "COMPOSICAO" in classe2:
@@ -76,16 +75,23 @@ class Command(BaseCommand):
                         subcomposicao=sub,
                         defaults={"proporcao": proporcao, "unidade": unidade}
                     )
+
                 else:
                     # É insumo
                     insumo = Insumo.objects.filter(codigo_sinapi=cod).first()
                     if not insumo:
-                        # Cria insumo automaticamente
-                        insumo = Insumo.objects.create(
-                            codigo_sinapi=cod,
-                            descricao=descricao,
-                            unidade=unidade
-                        )
+                        try:
+                            insumo = Insumo.objects.create(
+                                codigo_sinapi=cod,
+                                descricao=descricao or "Sem descrição",
+                                unidade=unidade or "-",
+                                material=None  # material agora é opcional
+                            )
+                            self.stdout.write(self.style.NOTICE(f"🆕 Criado insumo sem material: {cod} - {descricao}"))
+                        except Exception as e:
+                            erros.append((f"Insumo '{cod}'", f"Erro ao criar insumo: {e}"))
+                            continue
+
                     ItemDeComposicao.objects.update_or_create(
                         composicao_pai=composicao_pai,
                         insumo=insumo,
@@ -98,10 +104,10 @@ class Command(BaseCommand):
             except Exception as e:
                 erros.append((descricao or "N/D", str(e)))
 
-        self.stdout.write(self.style.SUCCESS(f"✅ {total_linhas} linhas processadas."))
+        self.stdout.write(self.style.SUCCESS(f"\n✅ {total_linhas} linhas processadas."))
         self.stdout.write(self.style.SUCCESS(f"📦 {itens_adicionados} itens adicionados ao banco."))
 
         if erros:
-            self.stdout.write(self.style.WARNING(f"⚠️ {len(erros)} erros encontrados. Primeiros 5:"))
+            self.stdout.write(self.style.WARNING(f"\n⚠️ {len(erros)} erros encontrados. Primeiros 5:"))
             for i, (desc, err) in enumerate(erros[:5]):
-                self.stdout.write(f"❌ {i+1}. '{desc}' → {err}")
+                self.stdout.write(self.style.WARNING(f"❌ {i+1}. '{desc}' → {err}"))
