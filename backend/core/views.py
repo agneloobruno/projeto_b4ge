@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Obra, Material
-from .serializers import ObraSerializer, MaterialSerializer, UserSerializer
+from .serializers import ObraSerializer, MaterialSerializer, UserSerializer, ImpactoPorEtapaSerializer
 from .utils_calculo import atualizar_impacto_obra
 
 class ObraViewSet(viewsets.ModelViewSet):
@@ -44,3 +44,28 @@ def atualizar_impacto_api(request, obra_id):
 
     resultado = atualizar_impacto_obra(obra)
     return Response({"mensagem": resultado}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def impactos_por_obra(request, id):
+    try:
+        obra = Obra.objects.get(id=id)
+    except Obra.DoesNotExist:
+        return Response({"erro": "Obra não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+    dados_agrupados = (
+        InsumoAplicado.objects
+        .filter(obra=obra)
+        .values("etapa_obra")
+        .annotate(
+            energia_embutida_total=Sum("energia_embutida_mj"),
+            co2_total=Sum("co2_kg")
+        )
+        .order_by("etapa_obra")
+    )
+
+    serializer = ImpactoPorEtapaSerializer(dados_agrupados, many=True)
+    return Response({
+        "obra": obra.nome,
+        "etapas": serializer.data
+    })
