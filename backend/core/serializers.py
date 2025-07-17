@@ -66,3 +66,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+    
+class ImpactoPorEtapaSerializer(serializers.Serializer):
+    etapa_obra = serializers.CharField()
+    energia_embutida_total = serializers.FloatField()
+    co2_total = serializers.FloatField()
