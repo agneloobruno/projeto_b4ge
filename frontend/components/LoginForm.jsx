@@ -13,7 +13,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     try {
-      const resposta = await fetch("http://localhost:8000/api/auth/token/", {
+      const resposta = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({username: cpf, password: senha }),
