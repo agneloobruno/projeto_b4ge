@@ -16,3 +16,4 @@ venv/
 .env.db
 .env.dev
 postgres_data/
+frontend.zip

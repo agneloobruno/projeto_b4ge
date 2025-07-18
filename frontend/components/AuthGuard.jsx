@@ -8,17 +8,16 @@ export default function AuthGuard({ children }) {
   const [verificando, setVerificando] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = typeof window !== "undefined" && localStorage.getItem("accessToken");
+
     if (!token) {
       router.replace("/login");
     } else {
-      setVerificando(false); // só renderiza os filhos se houver token
+      setVerificando(false);
     }
   }, [router]);
 
-  if (verificando) {
-    return <p className="text-center mt-10">Verificando autenticação...</p>;
-  }
+  if (verificando) return <p>Verificando autenticação...</p>;
 
   return children;
 }

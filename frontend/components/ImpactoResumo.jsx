@@ -1,64 +1,82 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function LoginForm() {
-  const router = useRouter();
-  const [cpf, setCpf] = useState("");
-  const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState("");
+export default function ImpactoResumo({ obraId }) {
+  const [dados, setDados]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro]       = useState(null);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    console.log("🔍 ImpactoResumo.useEffect iniciado para obraId =", obraId);
 
-    try {
-      const resposta = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: cpf, password: senha }),
-      });
-
-      if (!resposta.ok) throw new Error("Credenciais inválidas");
-
-      const dados = await resposta.json();
-
-      // Corrigido: salva os tokens com chaves consistentes
-      localStorage.setItem("token", dados.access);
-      localStorage.setItem("refresh", dados.refresh);
-
-      router.push("/obras");
-    } catch (err) {
-      setErro(err.message);
+    if (!obraId) {
+      console.log("⛔ Sem obraId — saindo do useEffect");
+      setLoading(false);
+      return;
     }
-  };
+
+    // aqui pegamos o mesmo nome de chave que o LoginForm salva:
+    const token = localStorage.getItem("accessToken");
+    console.log("🔑 Token obtido:", token);
+
+    if (!token) {
+      console.log("⚠️ Token ausente — abortando fetch");
+      setErro("Token JWT não encontrado. Faça login novamente.");
+      setLoading(false);
+      return;
+    }
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/impactos/obra/${obraId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    )
+      .then((res) => {
+        console.log("🎯 ImpactoResumo → resposta status", res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("🎉 ImpactoResumo → dados recebidos", data);
+        setDados(data);
+      })
+      .catch((err) => {
+        console.error("⚠️ ImpactoResumo → erro no fetch", err);
+        setErro(err.message);
+      })
+      .finally(() => {
+        console.log("✅ ImpactoResumo → carregamento finalizado");
+        setLoading(false);
+      });
+  }, [obraId]);
+
+  if (loading)       return <p>Carregando...</p>;
+  if (erro)          return <p className="text-red-500">Erro: {erro}</p>;
+  if (!dados.length) return <p>Nenhum dado encontrado.</p>;
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4 max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold text-center">Login</h2>
-
-      {erro && <p className="text-red-500 text-sm">{erro}</p>}
-
-      <input
-        type="text"
-        placeholder="CPF"
-        value={cpf}
-        onChange={(e) => setCpf(e.target.value)}
-        className="w-full border border-gray-400 px-3 py-2 rounded"
-      />
-      <input
-        type="password"
-        placeholder="Senha"
-        value={senha}
-        onChange={(e) => setSenha(e.target.value)}
-        className="w-full border border-gray-400 px-3 py-2 rounded"
-      />
-      <button
-        type="submit"
-        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-      >
-        Entrar
-      </button>
-    </form>
+    <div className="mt-6">
+      <h2 className="text-xl font-bold mb-4">Impactos Ambientais por Etapa</h2>
+      <table className="min-w-full border border-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 text-left">Etapa</th>
+            <th className="px-4 py-2 text-left">Energia Embutida (MJ)</th>
+            <th className="px-4 py-2 text-left">CO₂ (kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dados.map((etapa, idx) => (
+            <tr key={idx} className="border-t">
+              <td className="px-4 py-2">{etapa.etapa_obra}</td>
+              <td className="px-4 py-2">{etapa.energia_embutida_total}</td>
+              <td className="px-4 py-2">{etapa.co2_total}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

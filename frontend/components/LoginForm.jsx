@@ -16,12 +16,14 @@ export default function LoginForm() {
       const resposta = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({username: cpf, password: senha }),
+        body: JSON.stringify({ username: cpf, password: senha }),
       });
 
       if (!resposta.ok) throw new Error("Credenciais inválidas");
 
       const dados = await resposta.json();
+
+      // Salva os tokens com chaves consistentes
       localStorage.setItem("accessToken", dados.access);
       localStorage.setItem("refreshToken", dados.refresh);
 
@@ -34,7 +36,6 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleLogin} className="space-y-4 max-w-md mx-auto mt-10">
       <h2 className="text-2xl font-bold text-center">Login</h2>
-
       {erro && <p className="text-red-500 text-sm">{erro}</p>}
 
       <input
