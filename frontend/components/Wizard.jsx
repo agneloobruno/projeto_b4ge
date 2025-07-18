@@ -24,7 +24,7 @@ export default function Wizard() {
 
   const salvarObra = async () => {
     try {
-      const resposta = await authFetch('http://localhost:8000/api/salvar/', {
+      const resposta = await authFetch('http://localhost:8000/api/registrar/', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
