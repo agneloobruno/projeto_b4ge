@@ -1,3 +1,4 @@
+// frontend/components/Wizard.jsx
 'use client';
 
 import { useState } from 'react';
@@ -22,18 +23,23 @@ export default function Wizard() {
   const [dadosObra, setDadosObra] = useState({});
   const router = useRouter();
 
+  // Função de salvar obra ajustada para usar o endpoint correto e o token via authFetch
   const salvarObra = async () => {
     try {
-      const resposta = await authFetch('http://localhost:8000/api/registrar/', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Supondo que o token esteja armazenado no localStorage
-         },
-        body: JSON.stringify(dadosObra)
-      });
+      const resposta = await authFetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/obras/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dadosObra)
+        }
+      );
 
-      if (!resposta.ok) throw new Error('Erro ao salvar obra');
+      if (!resposta.ok) {
+        throw new Error(`Erro ao salvar obra: ${resposta.status} ${resposta.statusText}`);
+      }
 
       alert('✅ Obra salva com sucesso!');
       router.push('/obras');
@@ -52,9 +58,8 @@ export default function Wizard() {
     { id: 7, componente: Etapa7 },
     { id: 8, componente: Etapa8 },
     { id: 9, componente: Etapa9 },
-    { id: 10, componente: Etapa10 },
+    { id: 10, componente: Etapa10 }
   ];
-
   const EtapaAtual = etapas[etapaAtual].componente;
 
   return (
