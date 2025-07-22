@@ -30,7 +30,7 @@ class Command(BaseCommand):
             return None
 
     def handle(self, *args, **kwargs):
-        file_path = os.path.join(os.getcwd(), "data", "Banco_Materiais.xlsx")
+        file_path = os.path.join(os.getcwd(), "data", "banco_materiais.xlsx")
         if not os.path.isfile(file_path):
             self.stdout.write(self.style.ERROR(f"❌ Arquivo não encontrado: {file_path}"))
             return
