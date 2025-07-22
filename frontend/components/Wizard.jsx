@@ -1,12 +1,10 @@
 // frontend/components/Wizard.jsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { authFetch } from '@/src/utils/authFetch';
-
-// Importações das 10 etapas verdadeiras
 import Etapa1 from './Etapa1_InformacoesGerais';
 import Etapa2 from './Etapa2_Fundacao';
 import Etapa3 from './Etapa3_Superestrutura';
@@ -21,11 +19,47 @@ import Etapa10 from './Etapa10_MaoDeObraUsuarios';
 export default function Wizard() {
   const [etapaAtual, setEtapaAtual] = useState(0);
   const [dadosObra, setDadosObra] = useState({});
+  const [cidades, setCidades] = useState([]);
   const router = useRouter();
 
-  // Função de salvar obra ajustada para usar o endpoint correto e o token via authFetch
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cidades/`)
+      .then((res) => res.json())
+      .then((data) => setCidades(data));
+  }, []);
+
+  const camposNumericos = [
+    'area_construida', 'area_total', 'altura_vaos', 'lotacao_transporte',
+    'distancia_media', 'consumo_diesel', 'gasto_calorico', 'estimativa_usuarios',
+    'area_terreno', 'area_total_construir', 'area_total_demolir',
+    'proporcao', 'quantidade', 'equivalente_kg',
+    'energia_embutida_mj', 'energia_embutida_gj', 'co2_kg',
+    'distancia_km', 'energia_transporte_mj', 'energia_transporte_gj',
+    'potencia_w', 'tempo_uso', 'energia_equip_mj', 'energia_equip_gj',
+    'percentual_total', 'capacidade_caminhao', 'densidade',
+    'energia_embutida_mj_kg', 'energia_embutida_mj_m3'
+  ];
+
+  const converterCamposNumericos = (obj) => {
+    const convertido = { ...obj };
+    camposNumericos.forEach((campo) => {
+      if (campo in convertido) {
+        convertido[campo] = parseFloat(convertido[campo]);
+      }
+    });
+    return convertido;
+  };
+
   const salvarObra = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("⚠️ Você precisa estar logado para salvar uma obra.");
+      router.push("/login");
+      return;
+    }
+
     try {
+      const obraTratada = converterCamposNumericos(dadosObra);
       const resposta = await authFetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/obras/`,
         {
@@ -33,12 +67,13 @@ export default function Wizard() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(dadosObra)
+          body: JSON.stringify(obraTratada)
         }
       );
 
       if (!resposta.ok) {
-        throw new Error(`Erro ao salvar obra: ${resposta.status} ${resposta.statusText}`);
+        const erro = await resposta.json();
+        throw new Error("Erro ao salvar obra: " + JSON.stringify(erro));
       }
 
       alert('✅ Obra salva com sucesso!');
@@ -60,6 +95,7 @@ export default function Wizard() {
     { id: 9, componente: Etapa9 },
     { id: 10, componente: Etapa10 }
   ];
+
   const EtapaAtual = etapas[etapaAtual].componente;
 
   return (
@@ -77,6 +113,7 @@ export default function Wizard() {
           <EtapaAtual
             dados={dadosObra}
             setDados={setDadosObra}
+            cidades={cidades}
             etapaAnterior={() => etapaAtual > 0 && setEtapaAtual(etapaAtual - 1)}
             proximaEtapa={() => {
               if (etapaAtual < etapas.length - 1) {
