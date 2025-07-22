@@ -3,13 +3,15 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
-    ObraViewSet, MaterialViewSet,
+    CidadeViewSet, EstadoViewSet, ObraViewSet, MaterialViewSet,
     ping, RegisterView, atualizar_impacto_api, impactos_por_obra
 )
 
 router = DefaultRouter()
 router.register(r'obras', ObraViewSet, basename='obra')
 router.register(r'materiais', MaterialViewSet, basename='material')
+router.register(r'estados', EstadoViewSet, basename='estado')
+router.register(r'estados/(?P<uf>[^/.]+)/cidades', CidadeViewSet, basename='estado-cidades')
 
 urlpatterns = [
     path('', include(router.urls)),  # ✅ sem prefixo
