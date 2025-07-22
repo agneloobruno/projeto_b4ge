@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Obra, Material, Insumo, InsumoAplicado, Composicao, ItemDeComposicao
+from .models import Cidade, Estado, Obra, Material, Insumo, InsumoAplicado, Composicao, ItemDeComposicao
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,3 +71,14 @@ class ImpactoPorEtapaSerializer(serializers.Serializer):
     etapa_obra = serializers.CharField()
     energia_embutida_total = serializers.FloatField()
     co2_total = serializers.FloatField()
+
+
+class EstadoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estado
+        fields = ['uf', 'nome']  # ou os campos que você tenha
+
+class CidadeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cidade
+        fields = ['nome']

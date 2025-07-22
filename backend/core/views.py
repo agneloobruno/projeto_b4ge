@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db.models import Sum
-from .models import Obra, Material, InsumoAplicado
-from .serializers import ObraSerializer, MaterialSerializer, UserSerializer, ImpactoPorEtapaSerializer
+from .models import Cidade, Estado, Obra, Material, InsumoAplicado
+from .serializers import CidadeSerializer, EstadoSerializer, ObraSerializer, MaterialSerializer, UserSerializer, ImpactoPorEtapaSerializer
 from .utils_calculo import atualizar_impacto_obra
 
 class ObraViewSet(viewsets.ModelViewSet):
@@ -70,3 +70,14 @@ def impactos_por_obra(request, id):
         "obra": obra.nome,
         "etapas": serializer.data
     })
+
+class EstadoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Estado.objects.order_by('nome')
+    serializer_class = EstadoSerializer
+
+class CidadeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CidadeSerializer
+
+    def get_queryset(self):
+        uf = self.kwargs['uf']
+        return Cidade.objects.filter(estado__uf=uf).order_by('nome')
