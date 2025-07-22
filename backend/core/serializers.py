@@ -76,7 +76,7 @@ class ImpactoPorEtapaSerializer(serializers.Serializer):
 class EstadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estado
-        fields = ['uf', 'nome']  # ou os campos que você tenha
+        fields = ['sigla', 'nome']  # ou os campos que você tenha
 
 class CidadeSerializer(serializers.ModelSerializer):
     class Meta:

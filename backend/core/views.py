@@ -79,5 +79,7 @@ class CidadeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CidadeSerializer
 
     def get_queryset(self):
-        uf = self.kwargs['uf']
-        return Cidade.objects.filter(estado__uf=uf).order_by('nome')
+        uf = self.kwargs.get('uf')
+        if not uf:
+            return Cidade.objects.none()
+        return Cidade.objects.filter(estado__sigla__iexact=uf).order_by('nome')

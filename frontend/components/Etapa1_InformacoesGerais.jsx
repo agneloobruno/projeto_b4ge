@@ -142,8 +142,8 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
             >
               <option value="">Selecione o estado</option>
               {estados.map(e => (
-                <option key={e.uf} value={e.uf}>
-                  {e.nome} ({e.uf})
+                <option key={e.sigla} value={e.sigla}>
+                  {e.nome} ({e.sigla})
                 </option>
               ))}
             </select>
