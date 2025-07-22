@@ -32,13 +32,24 @@ class Insumo(models.Model):
     def __str__(self):
         return f"{self.codigo_sinapi} - {self.descricao}"
 
+class Estado(models.Model):
+    codigo = models.PositiveIntegerField(primary_key=True)
+    sigla = models.CharField(max_length=2, unique=True)
+    nome = models.CharField(max_length=100)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    regiao = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.nome} ({self.sigla})"
+
 
 class Cidade(models.Model):
     nome = models.CharField(max_length=100)
-    estado = models.CharField(max_length=2)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, related_name='cidades')
 
     def __str__(self):
-        return f"{self.nome} - {self.estado}"
+        return f"{self.nome} - {self.estado.sigla}"
 
 
 class DistanciaInsumoCidade(models.Model):
