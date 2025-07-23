@@ -26,7 +26,11 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
     fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/estados/${dados.estado}/cidades/`
     )
-      .then(res => res.json())
+      .then((res) => {
+        res.json();
+        console.log(res);
+      }
+      )
       .then(data => setCidadesFiltradas(data))
       .catch(err => console.error('Erro ao carregar cidades:', err));
   }, [dados.estado]);
