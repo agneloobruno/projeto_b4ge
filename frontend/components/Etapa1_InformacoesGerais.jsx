@@ -20,6 +20,7 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   useEffect(() => {
     if (!dados.estado) {
       setCidadesFiltradas([]);
+      console.log("Cidades filtradas:", cidadesFiltradas);
       return;
     }
     fetch(
@@ -31,10 +32,13 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   }, [dados.estado]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    // Atualiza o campo correspondente em dados
-    setDados(prev => ({ ...prev, [name]: value }));
-  };
+  const { name, value } = e.target;
+
+  setDados(prev => ({
+    ...prev,
+    [name]: name === 'cidade' ? parseInt(value) : value
+  }));
+};
 
   const validar = () => {
     const obrigatorios = [
@@ -159,9 +163,11 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
               disabled={!dados.estado}
             >
               <option value="">Selecione a cidade</option>
-              {cidadesFiltradas.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
+              {cidadesFiltradas
+                .filter(c => c.id !== undefined && c.id !== null)
+                .map(c => (
+                  <option key={`cidade-${c.id}`} value={c.id}>
+                    {c.nome}
                 </option>
               ))}
             </select>

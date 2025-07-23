@@ -75,11 +75,11 @@ class EstadoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Estado.objects.order_by('nome')
     serializer_class = EstadoSerializer
 
-class CidadeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = CidadeSerializer
+class CidadeViewSet(viewsets.ViewSet):
+    def list(self, request, uf=None):
+        if uf is None:
+            return Response({"detail": "Estado (uf) não fornecido."}, status=400)
 
-    def get_queryset(self):
-        uf = self.kwargs.get('uf')
-        if not uf:
-            return Cidade.objects.none()
-        return Cidade.objects.filter(estado__sigla__iexact=uf).order_by('nome')
+        cidades = Cidade.objects.filter(estado__sigla=uf.upper()).order_by('nome')
+        serializer = CidadeSerializer(cidades, many=True)
+        return Response(serializer.data)

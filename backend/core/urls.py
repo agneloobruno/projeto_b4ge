@@ -13,12 +13,12 @@ router.register(r'materiais', MaterialViewSet, basename='material')
 router.register(r'estados', EstadoViewSet, basename='estado')
 
 urlpatterns = [
-    path('api/', include(router.urls)),  # <- altera aqui
-    path('api/ping/', ping),
-    path('api/registrar/', RegisterView.as_view(), name='registrar'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/obras/<int:obra_id>/atualizar_impacto/', atualizar_impacto_api, name='atualizar_impacto_api'),
-    path('api/impactos/obra/<int:id>/', impactos_por_obra, name='impactos_por_obra'),
-    path('api/estados/<str:uf>/cidades/', CidadeViewSet.as_view({'get': 'list'}), name='estado-cidades'),
+    path('', include(router.urls)),  # ✅ agora não duplica
+    path('ping/', ping),
+    path('registrar/', RegisterView.as_view(), name='registrar'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('obras/<int:obra_id>/atualizar_impacto/', atualizar_impacto_api, name='atualizar_impacto_api'),
+    path('impactos/obra/<int:id>/', impactos_por_obra, name='impactos_por_obra'),
+    path('estados/<str:uf>/cidades/', CidadeViewSet.as_view({'get': 'list'}), name='estado-cidades'),
 ]

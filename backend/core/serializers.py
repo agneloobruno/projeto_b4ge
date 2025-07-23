@@ -81,4 +81,4 @@ class EstadoSerializer(serializers.ModelSerializer):
 class CidadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cidade
-        fields = ['nome']
+        fields = ['id', 'nome']
