@@ -14,7 +14,7 @@ router.register(r'estados', EstadoViewSet, basename='estado')
 router.register(r'cidades', CidadeViewSet, basename='cidade')
 
 urlpatterns = [
-    path('', include(router.urls)),  # ✅ agora não duplica
+    path('', include(router.urls)),
     path('ping/', ping),
     path('registrar/', RegisterView.as_view(), name='registrar'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

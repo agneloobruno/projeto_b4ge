@@ -22,8 +22,6 @@ export default function Wizard() {
   const [cidades, setCidades] = useState([]);
   const router = useRouter();
 
-
-
   const camposNumericos = [
     'area_construida', 'area_total', 'altura_vaos', 'lotacao_transporte',
     'distancia_media', 'consumo_diesel', 'gasto_calorico', 'estimativa_usuarios',

@@ -8,6 +8,35 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   const [estados, setEstados] = useState([]);
   const [cidadesFiltradas, setCidadesFiltradas] = useState([]);
 
+  const obra = {
+      nome: "teste",
+      tipologia: "teste",
+      cep: "teste",
+      estado: "MT",
+      cidade: 5220,
+      area_construida: "100",
+      tipologia_fundacao: "Radier",
+      superestrutura_1: "Concreto Armado Moldado In Loco",
+      superestrutura_2: "Estrutura Metálica",
+      tipologia_vedacao_externa: "Alvenaria 14x9x19cm",
+      area_paredes_externas: "10",
+      tipologia_vedacao_interna: "Alvenaria 14x9x19cm",
+      area_paredes_internas: "10",
+      area_laje: "10",
+      volume_laje: "10",
+      peso_armadura_laje: "1000",
+      possui_contrapiso: "Não",
+      tipologia_piso: "Cerâmico",
+      area_revestimento: "10",
+      comprimento_eletrodutos: "10",
+      comprimento_fios: "10",
+      lotacao_transporte: "10",
+      distancia_media: "10",
+      consumo_diesel: "10",
+      gasto_calorico: "10",
+      estimativa_usuarios: "2"
+    }
+
   // 1) Carrega lista de estados
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/estados/`)
@@ -34,13 +63,14 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   }, [dados.estado]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target
+    const { name, value } = e.target
 
-  setDados(prev => ({
-    ...prev,
-    [name]: name === 'cidade' ? parseInt(value) : value
-  }));
-};
+    // setDados(prev => ({
+    //   ...prev,
+    //   [name]: name === 'cidade' ? parseInt(value) : value
+    // }));
+    setDados(obra);
+  };
 
   const validar = () => {
     const obrigatorios = [
