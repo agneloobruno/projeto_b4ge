@@ -10,6 +10,35 @@ export default function Etapa10_MaoDeObraUsuarios({ dados, setDados, etapaAnteri
     setDados({ ...dados, [name]: value });
   };
 
+  const valores_padrao = {
+    nome: "teste",
+    tipologia: "teste",
+    cep: "teste",
+    estado: "MT",
+    cidade: "Cuiabá",
+    area_construida: "100",
+    tipologia_fundacao: "Radier",
+    superestrutura_1: "Concreto Armado Moldado In Loco",
+    superestrutura_2: "Estrutura Metálica",
+    tipologia_vedacao_externa: "Alvenaria 14x9x19cm",
+    area_paredes_externas: "10",
+    tipologia_vedacao_interna: "Alvenaria 14x9x19cm",
+    area_paredes_internas: "10",
+    area_laje: "10",
+    volume_laje: "10",
+    peso_armadura_laje: "1000",
+    possui_contrapiso: "Não",
+    tipologia_piso: "Cerâmico",
+    area_revestimento: "10",
+    comprimento_eletrodutos: "10",
+    comprimento_fios: "10",
+    lotacao_transporte: "10",
+    distancia_media: "10",
+    consumo_diesel: "10",
+    gasto_calorico: "10",
+    estimativa_usuarios: "2"
+  }
+
   const validar = () => {
     if (!dados.lotacao_transporte || !dados.distancia_media || !dados.consumo_diesel || !dados.gasto_calorico || !dados.estimativa_usuarios) {
       setErro('Preencha todos os campos obrigatórios.');

@@ -87,11 +87,11 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'db'),  # 'db' é o nome do serviço no docker-compose
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'NAME': ('b4gedb'),
+        'USER': ('b4geuser'),
+        'PASSWORD': ('b4gepass'),
+        'HOST': ('localhost'),  # 'db' é o nome do serviço no docker-compose
+        'PORT': ('5432'),
     }
 }
 

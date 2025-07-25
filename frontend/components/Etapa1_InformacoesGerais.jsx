@@ -20,23 +20,21 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   useEffect(() => {
     if (!dados.estado) {
       setCidadesFiltradas([]);
-      console.log("Cidades filtradas:", cidadesFiltradas);
       return;
     }
     fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/estados/${dados.estado}/cidades/`
     )
-      .then((res) => {
-        res.json();
-        console.log(res);
+      .then(async (res) => {
+        let cidades = await res.json();
+        setCidadesFiltradas(cidades);
       }
-      )
-      .then(data => setCidadesFiltradas(data))
+      ) 
       .catch(err => console.error('Erro ao carregar cidades:', err));
   }, [dados.estado]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+  const { name, value } = e.target
 
   setDados(prev => ({
     ...prev,

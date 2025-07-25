@@ -11,6 +11,7 @@ router = DefaultRouter()
 router.register(r'obras', ObraViewSet, basename='obra')
 router.register(r'materiais', MaterialViewSet, basename='material')
 router.register(r'estados', EstadoViewSet, basename='estado')
+router.register(r'cidades', CidadeViewSet, basename='cidade')
 
 urlpatterns = [
     path('', include(router.urls)),  # ✅ agora não duplica

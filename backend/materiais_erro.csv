@@ -1,0 +1,196 @@
+descricao,erro
+Tijolo ,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Areia,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Cimento,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Cal,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Aço CA-50,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Alumínio,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Madeira,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Brita,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Telha fibrocimento,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Tinta PVA,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Tinta acrílica,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Tinta óleo,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Argamassa,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+"Cerâmica de revestimento, 45 x 45","column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Concreto simples,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Gesso,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Conjunto fechadura+dobradiça,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Vidro Plano,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Cobre,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Tubo PVC,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Granito,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Polietileno,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Cerâmica branca,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Latão,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Lampada fluorescente,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Polipropileno,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+PTFE,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+solvente,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+"Placa OSB 1,2 x 2,4 x 0,1","column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Montante 90,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Guia 90,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+"Placa cimentícia 1,2 x 2,4 x 0,1","column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+"Placa drywall 1,2 x 2,4 x 0,1","column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Telha cerâmica,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Cola a base de PVA,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Poliestireno expandido,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Massa corrida a base de PVA,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Bloco de Concreto,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"
+Tinta óleo,"column core_cidade.estado_id does not exist
+LINE 1: SELECT ""core_cidade"".""id"", ""core_cidade"".""nome"", ""core_cidad...
+                                                         ^
+HINT:  Perhaps you meant to reference the column ""core_cidade.estado"".
+"

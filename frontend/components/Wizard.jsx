@@ -22,11 +22,7 @@ export default function Wizard() {
   const [cidades, setCidades] = useState([]);
   const router = useRouter();
 
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cidades/`)
-      .then((res) => res.json())
-      .then((data) => setCidades(data));
-  }, []);
+
 
   const camposNumericos = [
     'area_construida', 'area_total', 'altura_vaos', 'lotacao_transporte',
@@ -113,7 +109,6 @@ export default function Wizard() {
           <EtapaAtual
             dados={dadosObra}
             setDados={setDadosObra}
-            cidades={cidades}
             etapaAnterior={() => etapaAtual > 0 && setEtapaAtual(etapaAtual - 1)}
             proximaEtapa={() => {
               if (etapaAtual < etapas.length - 1) {
