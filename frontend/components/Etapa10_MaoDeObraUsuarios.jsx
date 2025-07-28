@@ -7,40 +7,22 @@ export default function Etapa10_MaoDeObraUsuarios({ dados, setDados, etapaAnteri
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDados({ ...dados, [name]: value });
+    // Substitui vírgula por ponto para garantir compatibilidade numérica
+    setDados({ ...dados, [name]: value.replace(',', '.') });
   };
 
-  const valores_padrao = {
-    nome: "teste",
-    tipologia: "teste",
-    cep: "teste",
-    estado: "MT",
-    cidade: "Cuiabá",
-    area_construida: "100",
-    tipologia_fundacao: "Radier",
-    superestrutura_1: "Concreto Armado Moldado In Loco",
-    superestrutura_2: "Estrutura Metálica",
-    tipologia_vedacao_externa: "Alvenaria 14x9x19cm",
-    area_paredes_externas: "10",
-    tipologia_vedacao_interna: "Alvenaria 14x9x19cm",
-    area_paredes_internas: "10",
-    area_laje: "10",
-    volume_laje: "10",
-    peso_armadura_laje: "1000",
-    possui_contrapiso: "Não",
-    tipologia_piso: "Cerâmico",
-    area_revestimento: "10",
-    comprimento_eletrodutos: "10",
-    comprimento_fios: "10",
-    lotacao_transporte: "10",
-    distancia_media: "10",
-    consumo_diesel: "10",
-    gasto_calorico: "10",
-    estimativa_usuarios: "2"
-  }
+  const parseNumber = (valor) => {
+    return valor ? String(valor).replace('.', ',') : '';
+  };
 
   const validar = () => {
-    if (!dados.lotacao_transporte || !dados.distancia_media || !dados.consumo_diesel || !dados.gasto_calorico || !dados.estimativa_usuarios) {
+    if (
+      !dados.lotacao_transporte ||
+      !dados.distancia_media ||
+      !dados.consumo_diesel ||
+      !dados.gasto_calorico ||
+      !dados.estimativa_usuarios
+    ) {
       setErro('Preencha todos os campos obrigatórios.');
       return false;
     }
@@ -56,51 +38,64 @@ export default function Etapa10_MaoDeObraUsuarios({ dados, setDados, etapaAnteri
       <h2 className="text-2xl font-bold">Etapa 10 – Mão de Obra e Usuários</h2>
       {erro && <p className="text-sm text-red-400">{erro}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="number"
-          name="lotacao_transporte"
-          value={dados.lotacao_transporte || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Lotação do transporte (pessoas)"
-        />
+      <div className="border rounded p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-2">Informações de transporte e uso</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label>
+            <span className="text-sm">Lotação do transporte (pessoas)</span>
+            <input
+              type="text"
+              name="lotacao_transporte"
+              value={parseNumber(dados.lotacao_transporte)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="distancia_media"
-          value={dados.distancia_media || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Distância média (km)"
-        />
+          <label>
+            <span className="text-sm">Distância média (km)</span>
+            <input
+              type="text"
+              name="distancia_media"
+              value={parseNumber(dados.distancia_media)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="consumo_diesel"
-          value={dados.consumo_diesel || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Consumo de diesel (km/L)"
-        />
+          <label>
+            <span className="text-sm">Consumo de diesel (km/L)</span>
+            <input
+              type="text"
+              name="consumo_diesel"
+              value={parseNumber(dados.consumo_diesel)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="gasto_calorico"
-          value={dados.gasto_calorico || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Gasto calórico diário (kcal)"
-        />
+          <label>
+            <span className="text-sm">Gasto calórico diário (kcal)</span>
+            <input
+              type="text"
+              name="gasto_calorico"
+              value={parseNumber(dados.gasto_calorico)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="estimativa_usuarios"
-          value={dados.estimativa_usuarios || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Estimativa de usuários da edificação"
-        />
+          <label>
+            <span className="text-sm">Estimativa de usuários da edificação</span>
+            <input
+              type="text"
+              name="estimativa_usuarios"
+              value={parseNumber(dados.estimativa_usuarios)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+        </div>
       </div>
 
       <div className="flex justify-between mt-6">
