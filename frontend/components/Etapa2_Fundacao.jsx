@@ -4,6 +4,10 @@ import { useState } from 'react';
 
 const TIPOS_FUNDACAO = ['Radier', 'Sapata', 'Tubulão', 'Estaca', 'Viga baldrame'];
 
+const valoresEspessuraRadier = [10, 15, 20, 25, 30];
+const valoresDiametroTubulao = [70, 80, 100, 120];
+const valoresDiametroEstaca = [30, 50, 70, 90];
+
 export default function Etapa2_Fundacao({ dados, setDados, etapaAnterior, proximaEtapa }) {
   const [erro, setErro] = useState('');
 
@@ -50,8 +54,30 @@ export default function Etapa2_Fundacao({ dados, setDados, etapaAnterior, proxim
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {tipo === 'Radier' && (
           <>
-            <input name="radier_area_total" onChange={handleChange} value={dados.radier_area_total || ''} className="input" placeholder="Área total (m²)" />
-            <input name="radier_espessura" onChange={handleChange} value={dados.radier_espessura || ''} className="input" placeholder="Espessura (cm)" />
+            <input
+              name="radier_area_total"
+              onChange={handleChange}
+              value={dados.radier_area_total || ''}
+              className="input"
+              placeholder="Área total (m²)"
+            />
+            <div>
+              <label className="block text-sm mb-2">Espessura (cm)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {valoresEspessuraRadier.map((esp) => (
+                  <label key={esp} className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      name="radier_espessura"
+                      value={esp}
+                      checked={dados.radier_espessura === esp.toString()}
+                      onChange={handleChange}
+                    />
+                    {esp}
+                  </label>
+                ))}
+              </div>
+            </div>
           </>
         )}
 
@@ -66,7 +92,23 @@ export default function Etapa2_Fundacao({ dados, setDados, etapaAnterior, proxim
         {tipo === 'Tubulão' && (
           <>
             <input name="tubulao_volume_total" onChange={handleChange} value={dados.tubulao_volume_total || ''} className="input" placeholder="Volume total (m³)" />
-            <input name="tubulao_diametro" onChange={handleChange} value={dados.tubulao_diametro || ''} className="input" placeholder="Diâmetro (m)" />
+            <div>
+              <label className="block text-sm mb-2">Diâmetro (cm)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {valoresDiametroTubulao.map((diam) => (
+                  <label key={diam} className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      name="tubulao_diametro"
+                      value={diam}
+                      checked={dados.tubulao_diametro === diam.toString()}
+                      onChange={handleChange}
+                    />
+                    {diam}
+                  </label>
+                ))}
+              </div>
+            </div>
             <input name="tubulao_profundidade" onChange={handleChange} value={dados.tubulao_profundidade || ''} className="input" placeholder="Profundidade (m)" />
           </>
         )}
@@ -74,7 +116,23 @@ export default function Etapa2_Fundacao({ dados, setDados, etapaAnterior, proxim
         {tipo === 'Estaca' && (
           <>
             <input name="estaca_volume_total" onChange={handleChange} value={dados.estaca_volume_total || ''} className="input" placeholder="Volume total (m³)" />
-            <input name="estaca_diametro" onChange={handleChange} value={dados.estaca_diametro || ''} className="input" placeholder="Diâmetro (m)" />
+            <div>
+              <label className="block text-sm mb-2">Diâmetro (cm)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {valoresDiametroEstaca.map((diam) => (
+                  <label key={diam} className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      name="estaca_diametro"
+                      value={diam}
+                      checked={dados.estaca_diametro === diam.toString()}
+                      onChange={handleChange}
+                    />
+                    {diam}
+                  </label>
+                ))}
+              </div>
+            </div>
             <input name="estaca_profundidade" onChange={handleChange} value={dados.estaca_profundidade || ''} className="input" placeholder="Profundidade (m)" />
           </>
         )}

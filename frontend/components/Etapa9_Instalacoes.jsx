@@ -7,14 +7,11 @@ export default function Etapa9_Instalacoes({ dados, setDados, etapaAnterior, pro
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDados({ ...dados, [name]: value });
+    setDados({ ...dados, [name]: value.replace(',', '.') });
   };
 
   const validar = () => {
-    if (!dados.comprimento_eletrodutos || !dados.comprimento_fios) {
-      setErro('Preencha todos os campos obrigatórios.');
-      return false;
-    }
+    setErro('');
     return true;
   };
 
@@ -22,76 +19,149 @@ export default function Etapa9_Instalacoes({ dados, setDados, etapaAnterior, pro
     if (validar()) proximaEtapa();
   };
 
+  const parseNumber = (valor) => {
+    return valor ? String(valor).replace('.', ',') : '';
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Etapa 9 – Instalações</h2>
       {erro && <p className="text-sm text-red-400">{erro}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="number"
-          name="comprimento_eletrodutos"
-          value={dados.comprimento_eletrodutos || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Comprimento total dos eletrodutos (m)"
-        />
+      {/* Instalações Elétricas */}
+      <div className="border rounded p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-2">Instalações Elétricas</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label>
+            <span className="text-sm">Eletroduto DN 20mm (1/2") (m)</span>
+            <input
+              type="text"
+              name="eletroduto_20mm"
+              value={parseNumber(dados.eletroduto_20mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="comprimento_fios"
-          value={dados.comprimento_fios || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Comprimento total dos fios (m)"
-        />
+          <label>
+            <span className="text-sm">Eletroduto DN 25mm (3/4") (m)</span>
+            <input
+              type="text"
+              name="eletroduto_25mm"
+              value={parseNumber(dados.eletroduto_25mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="bitolas_eletrodutos"
-          value={dados.bitolas_eletrodutos || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Bitola dos eletrodutos (mm)"
-        />
+          <label>
+            <span className="text-sm">Fiação de cobre 1,5 mm² (m)</span>
+            <input
+              type="text"
+              name="fio_1_5mm"
+              value={parseNumber(dados.fio_1_5mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="bitolas_fios"
-          value={dados.bitolas_fios || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Bitola dos fios (mm²)"
-        />
+          <label>
+            <span className="text-sm">Fiação de cobre 2,5 mm² (m)</span>
+            <input
+              type="text"
+              name="fio_2_5mm"
+              value={parseNumber(dados.fio_2_5mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
 
-        <input
-          type="number"
-          name="comprimento_tubos_pvc"
-          value={dados.comprimento_tubos_pvc || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Comprimento total de tubos PVC (m)"
-        />
-
-        <input
-          type="number"
-          name="comprimento_tubos_cobre"
-          value={dados.comprimento_tubos_cobre || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Comprimento total de tubos de cobre (m)"
-        />
-
-        <input
-          type="number"
-          name="divisorias_granito"
-          value={dados.divisorias_granito || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Número de divisórias de granito"
-        />
+          <label>
+            <span className="text-sm">Cabo 4,0 mm² (m)</span>
+            <input
+              type="text"
+              name="cabo_4mm"
+              value={parseNumber(dados.cabo_4mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+        </div>
       </div>
 
+      {/* Instalações Hidrossanitárias */}
+      <div className="border rounded p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-2">Instalações Hidrossanitárias</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label>
+            <span className="text-sm">Tubo PVC 20mm (m)</span>
+            <input
+              type="text"
+              name="tubo_pvc_20mm"
+              value={parseNumber(dados.tubo_pvc_20mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Tubo PVC 25mm (m)</span>
+            <input
+              type="text"
+              name="tubo_pvc_25mm"
+              value={parseNumber(dados.tubo_pvc_25mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Tubo PVC 40mm (m)</span>
+            <input
+              type="text"
+              name="tubo_pvc_40mm"
+              value={parseNumber(dados.tubo_pvc_40mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Tubo PVC 50mm (m)</span>
+            <input
+              type="text"
+              name="tubo_pvc_50mm"
+              value={parseNumber(dados.tubo_pvc_50mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Tubo PVC 100mm (m)</span>
+            <input
+              type="text"
+              name="tubo_pvc_100mm"
+              value={parseNumber(dados.tubo_pvc_100mm)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Divisória de Granito (m²)</span>
+            <input
+              type="text"
+              name="divisoria_granito"
+              value={parseNumber(dados.divisoria_granito)}
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Botões */}
       <div className="flex justify-between mt-6">
         <button
           onClick={etapaAnterior}

@@ -18,7 +18,12 @@ export default function Etapa8_Revestimentos({ dados, setDados, etapaAnterior, p
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDados({ ...dados, [name]: value });
+
+    // Converte vírgula para ponto ao salvar
+    const normalizado = value.replace(',', '.');
+    setDados({ ...dados, [name]: normalizado });
+
+    if (erro) setErro('');
   };
 
   const validar = () => {
@@ -33,12 +38,17 @@ export default function Etapa8_Revestimentos({ dados, setDados, etapaAnterior, p
     if (validar()) proximaEtapa();
   };
 
+  const formatar = (valor) => {
+    return (valor || '').toString().replace('.', ',');
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Etapa 8 – Revestimentos</h2>
       {erro && <p className="text-sm text-red-400">{erro}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         <label>
           <span className="text-sm">Tipologia de piso *</span>
           <select
@@ -54,13 +64,16 @@ export default function Etapa8_Revestimentos({ dados, setDados, etapaAnterior, p
           </select>
         </label>
 
-        <input
-          name="area_revestimento"
-          value={dados.area_revestimento || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Área de revestimento cerâmico de parede (m²)"
-        />
+        <label>
+          <span className="text-sm">Área de revestimento cerâmico de parede (m²) *</span>
+          <input
+            name="area_revestimento"
+            value={formatar(dados.area_revestimento)}
+            onChange={handleChange}
+            className="input"
+            placeholder="Ex: 123,45"
+          />
+        </label>
 
         <label>
           <span className="text-sm">Possui pintura externa?</span>
@@ -119,21 +132,28 @@ export default function Etapa8_Revestimentos({ dados, setDados, etapaAnterior, p
           </select>
         </label>
 
-        <input
-          name="soleira"
-          value={dados.soleira || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Soleira de mármore (m)"
-        />
+        <label>
+          <span className="text-sm">Soleira de mármore (m)</span>
+          <input
+            name="soleira"
+            value={formatar(dados.soleira)}
+            onChange={handleChange}
+            className="input"
+            placeholder="Ex: 3,20"
+          />
+        </label>
 
-        <input
-          name="rodape"
-          value={dados.rodape || ''}
-          onChange={handleChange}
-          className="input"
-          placeholder="Rodapé de granito (m)"
-        />
+        <label>
+          <span className="text-sm">Rodapé de granito (m)</span>
+          <input
+            name="rodape"
+            value={formatar(dados.rodape)}
+            onChange={handleChange}
+            className="input"
+            placeholder="Ex: 4,80"
+          />
+        </label>
+
       </div>
 
       <div className="flex justify-between mt-6">

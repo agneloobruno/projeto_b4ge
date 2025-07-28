@@ -240,7 +240,7 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
             onChange={handleChange}
             value={dados.escavacao_manual || ''}
             className="input"
-            placeholder="Escavação manual (m³)"
+            placeholder="Escavação horizontal em solo de 1ª Categoria (m³)"
           />
         </div>
       </fieldset>

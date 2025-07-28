@@ -7,11 +7,15 @@ export default function Etapa7_Esquadrias({ dados, setDados, etapaAnterior, prox
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDados({ ...dados, [name]: value });
+
+    // Se for número com vírgula, normaliza para ponto para salvar corretamente
+    const normalizado = value.replace(',', '.');
+
+    setDados({ ...dados, [name]: normalizado });
   };
 
   const validar = () => {
-    // Nenhum campo obrigatório, mas você pode incluir se desejar
+    // Nenhum campo obrigatório por padrão
     return true;
   };
 
@@ -20,31 +24,97 @@ export default function Etapa7_Esquadrias({ dados, setDados, etapaAnterior, prox
     else setErro('Verifique os campos preenchidos.');
   };
 
+  // Helper para exibir vírgula no input
+  const formatar = (valor) => {
+    return (valor || '').toString().replace('.', ',');
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Etapa 7 – Esquadrias</h2>
       {erro && <p className="text-sm text-red-400">{erro}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Portas */}
-        <input name="portas_60x210" value={dados.portas_60x210 || ''} onChange={handleChange} className="input" placeholder="Qtd portas 60x210" />
-        <input name="portas_70x210" value={dados.portas_70x210 || ''} onChange={handleChange} className="input" placeholder="Qtd portas 70x210" />
-        <input name="portas_80x210" value={dados.portas_80x210 || ''} onChange={handleChange} className="input" placeholder="Qtd portas 80x210" />
-        <input name="portas_120x210" value={dados.portas_120x210 || ''} onChange={handleChange} className="input" placeholder="Qtd portas 120x210" />
-        <input name="portas_aluminio" value={dados.portas_aluminio || ''} onChange={handleChange} className="input" placeholder="Qtd portas de alumínio (2F, venezianas)" />
+        {/* PORTAS */}
+        <fieldset className="border p-4 rounded-md space-y-4">
+          <legend className="text-sm font-semibold">Portas</legend>
 
-        {/* Janelas */}
-        <input name="janelas_basculantes" value={dados.janelas_basculantes || ''} onChange={handleChange} className="input" placeholder="Qtd janelas basculantes" />
-        <input name="janelas_maximar" value={dados.janelas_maximar || ''} onChange={handleChange} className="input" placeholder="Qtd janelas maxim-ar" />
-        <input name="janelas_outros" value={dados.janelas_outros || ''} onChange={handleChange} className="input" placeholder="Janelas (outros tipos)" />
+          <label>
+            <span className="text-sm">Porta de madeira 60 x 210 cm (und)</span>
+            <input name="porta_madeira_60x210" value={formatar(dados.porta_madeira_60x210)} onChange={handleChange} className="input" />
+          </label>
 
-        {/* Vãos e medidas */}
-        <input name="comp_total_vãos" value={dados.comp_total_vãos || ''} onChange={handleChange} className="input" placeholder="Comprimento total dos vãos (m)" />
-        <input name="altura_vãos" value={dados.altura_vãos || ''} onChange={handleChange} className="input" placeholder="Altura dos vãos (m)" />
-        <input name="peitoril" value={dados.peitoril || ''} onChange={handleChange} className="input" placeholder="Altura do peitoril (cm)" />
-        <input name="soleira" value={dados.soleira || ''} onChange={handleChange} className="input" placeholder="Altura da soleira (cm)" />
-        <input name="vão_estilob" value={dados.vão_estilob || ''} onChange={handleChange} className="input" placeholder="Qtd de vãos estilo B (profundos)" />
+          <label>
+            <span className="text-sm">Porta de madeira 70 x 210 cm (und)</span>
+            <input name="porta_madeira_70x210" value={formatar(dados.porta_madeira_70x210)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Porta de madeira 80 x 210 cm (und)</span>
+            <input name="porta_madeira_80x210" value={formatar(dados.porta_madeira_80x210)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Porta de madeira 120 x 210 cm 2F (und)</span>
+            <input name="porta_madeira_120x210_2f" value={formatar(dados.porta_madeira_120x210_2f)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Porta de alumínio de abrir 1F (m²)</span>
+            <input name="porta_aluminio_1f" value={formatar(dados.porta_aluminio_1f)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Porta de correr de alumínio 2F (m²)</span>
+            <input name="porta_aluminio_2f" value={formatar(dados.porta_aluminio_2f)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Porta de alumínio veneziana (m²)</span>
+            <input name="porta_veneziana" value={formatar(dados.porta_veneziana)} onChange={handleChange} className="input" />
+          </label>
+        </fieldset>
+
+        {/* JANELAS */}
+        <fieldset className="border p-4 rounded-md space-y-4">
+          <legend className="text-sm font-semibold">Janelas</legend>
+
+          <label>
+            <span className="text-sm">Área total de janela basculante de aço (m²)</span>
+            <input name="janela_basculante" value={formatar(dados.janela_basculante)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Área total de janela correr de alumínio 2 folhas 100x120cm (m²)</span>
+            <input name="janela_correr_2f_100x120" value={formatar(dados.janela_correr_2f_100x120)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Área total de janela de alumínio Maxim-Ar (m²)</span>
+            <input name="janela_maximar" value={formatar(dados.janela_maximar)} onChange={handleChange} className="input" />
+          </label>
+        </fieldset>
+
+        {/* OUTROS ELEMENTOS */}
+        <fieldset className="md:col-span-2 border p-4 rounded-md space-y-4">
+          <legend className="text-sm font-semibold">Outros elementos</legend>
+
+          <label>
+            <span className="text-sm">Comprimento das vergas (total) (m)</span>
+            <input name="comprimento_vergas" value={formatar(dados.comprimento_vergas)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Peitoril linear de granito ou mármore (m)</span>
+            <input name="peitoril_granito" value={formatar(dados.peitoril_granito)} onChange={handleChange} className="input" />
+          </label>
+
+          <label>
+            <span className="text-sm">Brise em chapa metálica perfurada (m²)</span>
+            <input name="brise_chapa" value={formatar(dados.brise_chapa)} onChange={handleChange} className="input" />
+          </label>
+        </fieldset>
       </div>
 
       <div className="flex justify-between mt-6">
