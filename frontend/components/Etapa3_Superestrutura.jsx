@@ -20,9 +20,10 @@ export default function Etapa3_Superestrutura({ dados, setDados, etapaAnterior, 
 
   const validar = () => {
     if (!dados.superestrutura_1 || !dados.superestrutura_2) {
-      setErro('Selecione ambas as tipologias de superestrutura.');
+      setErro('Selecione ambas as tipologias de Supra-Estrutura.');
       return false;
     }
+    setErro('');
     return true;
   };
 
@@ -36,7 +37,7 @@ export default function Etapa3_Superestrutura({ dados, setDados, etapaAnterior, 
       case 'Alvenaria com Cinta de Amarração':
         return (
           <>
-            <input name={`${prefixo}_cinta_comprimento`} value={dados[`${prefixo}_cinta_comprimento`] || ''} onChange={handleChange} className="input" placeholder="Comprimento da cinta (m)" />
+            <input name={`${prefixo}_cinta_comprimento`} value={dados[`${prefixo}_cinta_comprimento`] || ''} onChange={handleChange} className="input" placeholder="Comprimento total da cinta (m)" />
             <input name={`${prefixo}_cinta_largura`} value={dados[`${prefixo}_cinta_largura`] || ''} onChange={handleChange} className="input" placeholder="Largura da cinta (cm)" />
           </>
         );
@@ -45,12 +46,12 @@ export default function Etapa3_Superestrutura({ dados, setDados, etapaAnterior, 
           <>
             <input name={`${prefixo}_volume_vigas`} value={dados[`${prefixo}_volume_vigas`] || ''} onChange={handleChange} className="input" placeholder="Volume das vigas e pilares (m³)" />
             <input name={`${prefixo}_area_formas`} value={dados[`${prefixo}_area_formas`] || ''} onChange={handleChange} className="input" placeholder="Área das formas (m²)" />
-            <input name={`${prefixo}_peso_armadura`} value={dados[`${prefixo}_peso_armadura`] || ''} onChange={handleChange} className="input" placeholder="Peso da armadura (kg)" />
+            <input name={`${prefixo}_peso_armadura`} value={dados[`${prefixo}_peso_armadura`] || ''} onChange={handleChange} className="input" placeholder="Peso da armação das vigas e pilares (kg)" />
           </>
         );
       case 'Estrutura Metálica':
         return (
-          <input name={`${prefixo}_peso_armadura`} value={dados[`${prefixo}_peso_armadura`] || ''} onChange={handleChange} className="input" placeholder="Peso da armadura (kg)" />
+          <input name={`${prefixo}_peso_armadura`} value={dados[`${prefixo}_peso_armadura`] || ''} onChange={handleChange} className="input" placeholder="Peso da armação das vigas e pilares (kg)" />
         );
       case 'Estrutura em Madeira':
         return (
@@ -58,7 +59,7 @@ export default function Etapa3_Superestrutura({ dados, setDados, etapaAnterior, 
         );
       case 'Concreto Armado Pré-Moldado':
         return (
-          <input name={`${prefixo}_volume_estrutura`} value={dados[`${prefixo}_volume_estrutura`] || ''} onChange={handleChange} className="input" placeholder="Volume de concreto total (m³)" />
+          <input name={`${prefixo}_volume_estrutura`} value={dados[`${prefixo}_volume_estrutura`] || ''} onChange={handleChange} className="input" placeholder="Volume de concreto de toda a estrutura (m³)" />
         );
       default:
         return null;
@@ -102,9 +103,24 @@ export default function Etapa3_Superestrutura({ dados, setDados, etapaAnterior, 
         </label>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {dados.superestrutura_1 && renderCampos('s1', dados.superestrutura_1)}
-        {dados.superestrutura_2 && renderCampos('s2', dados.superestrutura_2)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {dados.superestrutura_1 && (
+          <fieldset className="border p-4 rounded-md">
+            <legend className="text-sm font-semibold mb-2">Campos da Superestrutura 01</legend>
+            <div className="space-y-2">
+              {renderCampos('s1', dados.superestrutura_1)}
+            </div>
+          </fieldset>
+        )}
+
+        {dados.superestrutura_2 && (
+          <fieldset className="border p-4 rounded-md">
+            <legend className="text-sm font-semibold mb-2">Campos da Superestrutura 02</legend>
+            <div className="space-y-2">
+              {renderCampos('s2', dados.superestrutura_2)}
+            </div>
+          </fieldset>
+        )}
       </div>
 
       <div className="flex justify-between mt-6">
