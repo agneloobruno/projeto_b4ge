@@ -123,13 +123,15 @@ export default function Etapa5_Cobertura({ dados, setDados, etapaAnterior, proxi
             className="input"
             placeholder="Área telhado (m²)"
           />
-          <input
-            name="comp_caibros"
-            value={dados.comp_caibros || ''}
-            onChange={handleChange}
-            className="input"
-            placeholder="Comprimento total caibros (m)"
-          />
+          {dados.tipologia_estrutura === 'Estrutura em madeira' && (
+            <input
+              name="comp_caibros"
+              value={dados.comp_caibros || ''}
+              onChange={handleChange}
+              className="input"
+              placeholder="Comprimento total caibros (m)"
+            />
+          )}
           <input
             name="comp_cumeeira"
             value={dados.comp_cumeeira || ''}
