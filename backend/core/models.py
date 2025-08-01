@@ -85,6 +85,10 @@ class Obra(models.Model):
 
     def co2_total(self):
         return round(sum((item.co2_kg or 0) for item in self.itens_aplicados.all()), 2)
+    
+    energia_total_mj = models.FloatField(null=True, blank=True)
+    co2_total_kg = models.FloatField(null=True, blank=True)
+
 
 
 class Composicao(models.Model):

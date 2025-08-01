@@ -13,9 +13,13 @@ class ObraViewSet(viewsets.ModelViewSet):
     serializer_class = ObraSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        obra = serializer.save()
+        atualizar_impacto_obra(obra)
+
 @api_view(['GET'])
 def ping(request):
-    return Response({"message": "pong from Django 🔁"})
+    return Response({"message": "ping from Django 🔁"})
 
 class MaterialViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Material.objects.all()

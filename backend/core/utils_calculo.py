@@ -1,4 +1,4 @@
-from .models import InsumoAplicado, Material, DistanciaInsumoCidade
+from .models import InsumoAplicado, Material, DistanciaInsumoCidade, Obra
 from .utils import calcular_impacto
 
 def atualizar_impacto_obra(obra):
@@ -42,21 +42,19 @@ def atualizar_impacto_obra(obra):
                     energia = (material.energia_embutida_mj_kg or 0) * (item.proporcao or 0) * fator_manut
                     co2 = (material.co2_kg or 0) * (item.proporcao or 0) * fator_manut
 
-                    # Cálculo de transporte (cidade da obra ↔ material)
+                    # Cálculo de transporte
                     distancia = 0
                     try:
                         dt = DistanciaInsumoCidade.objects.get(insumo=item.insumo, cidade_da_obra=obra.cidade)
                         distancia = dt.distancia
                     except DistanciaInsumoCidade.DoesNotExist:
-                        pass  # Se não encontrar a distância, considera como 0
+                        pass
 
-                    # Considera apenas se a distância for maior que 0
                     if distancia > 0:
-                        # Calcula impacto de transporte (considerando ida e volta)
                         impacto_transporte = 2 * distancia * (material.peso_kg or 0) * (material.co2_kg or 0)
                         co2 += impacto_transporte
 
-                    # Atualiza ou cria registro do insumo aplicado
+                    # Atualiza ou cria o insumo aplicado
                     InsumoAplicado.objects.update_or_create(
                         obra=obra,
                         tipo="INSUMO",
@@ -70,5 +68,13 @@ def atualizar_impacto_obra(obra):
                         }
                     )
 
-    # Recalcula o impacto total da obra
-    obra.calcular_impacto_total()
+    obra.energia_total_mj = obra.energia_embutida_total()
+    obra.co2_total_kg = obra.co2_total()
+    obra.save()
+    
+
+
+
+    # Você pode mostrar os resultados, se quiser:
+    print("Energia total (MJ):", obra.energia_embutida_total())
+    print("CO2 total (kg):", obra.co2_total())
