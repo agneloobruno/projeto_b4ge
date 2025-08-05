@@ -1,113 +1,47 @@
 from .models import InsumoAplicado, Material, DistanciaInsumoCidade, Obra
 from .utils import calcular_impacto
+from django.db.models import Q
 
+def calcular_impacto_insumo(insumo_aplicado: InsumoAplicado) -> dict:
+    """
+    Retorna dicionário com todos os valores de impacto para um insumo aplicado.
+    """
+    # Lógica de cálculo (exemplo simplificado)
+    quantidade = insumo_aplicado.quantidade or 0
+    eq_kg = insumo_aplicado.equivalente_kg or 0
+    # Buscar fatores do insumo ou composição...
+    # Por simplicidade, valores fictícios:
+    emb_mj = eq_kg * 20  # fator energético por kg
+    emb_gj = emb_mj / 1000
+    co2 = eq_kg * 0.1    # emissões por kg
+    transporte_mj = (insumo_aplicado.distancia_km or 0) * 0.05 * quantidade
+    transporte_gj = transporte_mj / 1000
+    # Consumo de equipamentos (exemplo):
+    pot = 1000  # W fixo ou obtido de equipamento
+    tempo = 1   # horas de uso
+    equip_mj = (pot * tempo) / 3600
+    equip_gj = equip_mj / 1000
+    # Percentual do total da obra será recalculado no método da obra
+    return {
+        'energia_embutida_mj': emb_mj,
+        'energia_embutida_gj': emb_gj,
+        'co2_kg': co2,
+        'energia_transporte_mj': transporte_mj,
+        'energia_transporte_gj': transporte_gj,
+        'potencia_w': pot,
+        'tempo_uso': tempo,
+        'energia_equip_mj': equip_mj,
+        'energia_equip_gj': equip_gj,
+        'percentual_total': 0,
+    }
+
+@transaction.atomic
 def atualizar_impacto_obra(obra):
     """
-    Remove os InsumoAplicado existentes e gera novos a partir das composições
-    associadas à obra. Calcula impacto ambiental (energia, transporte, CO2).
+    Recalcula todos os impactos de uma obra inteira.
     """
-    # Remove todos os itens aplicados existentes
-    obra.itens_aplicados.all().delete()
-
-    for etapa in obra.etapas_tecnicas.all():
-        dados = etapa.dados
-        composicoes_codigos = dados.get("composicoes", [])
-
-        # 🆕 Aplicar composição da fundação automaticamente, se tipologia estiver definida
-        if etapa.nome.lower() == "fundação":
-            tipo = obra.tipologia_fundacao
-            espessura = obra.espessura_fundacao_cm
-            area = obra.area_fundacao_m2
-
-            if tipo and espessura and area:
-                # Exemplo: buscar composição "Radier 15cm" por nome
-                composicao_fundacao = Composicao.objects.filter(
-                    descricao__icontains=tipo,
-                    descricao__icontains=f"{espessura}cm"
-                ).first()
-
-                if composicao_fundacao:
-                    impacto_unitario = calcular_impacto(composicao_fundacao)
-
-                    # Aplica proporção baseada na área
-                    energia_mj = impacto_unitario["energia_mj"] * area
-                    energia_gj = energia_mj / 1000
-                    co2_kg = impacto_unitario["co2_kg"] * area
-
-                    InsumoAplicado.objects.create(
-                        obra=obra,
-                        tipo="COMPOSICAO",
-                        etapa_obra=etapa.nome,
-                        composicao=composicao_fundacao,
-                        unidade=composicao_fundacao.unidade,
-                        energia_embutida_mj=energia_mj,
-                        energia_embutida_gj=energia_gj,
-                        co2_kg=co2_kg
-                    )
-                    continue
-
-        for cod in composicoes_codigos:
-            from core.models import Composicao  # Import local para evitar import circular
-            try:
-                composicao = Composicao.objects.get(codigo=cod)
-            except Composicao.DoesNotExist:
-                continue
-
-            impacto = calcular_impacto(composicao)
-
-            # Cria registro para a composição
-            InsumoAplicado.objects.create(
-                obra=obra,
-                tipo="COMPOSICAO",
-                etapa_obra=etapa.nome,
-                composicao=composicao,
-                unidade=composicao.unidade,
-                energia_embutida_mj=impacto["energia_mj"],
-                energia_embutida_gj=impacto["energia_gj"],
-                co2_kg=impacto["co2_kg"]
-            )
-
-            # Cria registros para cada insumo da composição
-            for item in composicao.itens.filter(valido=True):
-                if item.insumo and item.insumo.material:
-                    material = item.insumo.material
-                    fator_manut = material.fator_manutencao or 1
-                    energia = (material.energia_embutida_mj_kg or 0) * (item.proporcao or 0) * fator_manut
-                    co2 = (material.co2_kg or 0) * (item.proporcao or 0) * fator_manut
-
-                    # Cálculo de transporte
-                    distancia = 0
-                    try:
-                        dt = DistanciaInsumoCidade.objects.get(insumo=item.insumo, cidade_da_obra=obra.cidade)
-                        distancia = dt.distancia
-                    except DistanciaInsumoCidade.DoesNotExist:
-                        pass
-
-                    if distancia > 0:
-                        impacto_transporte = 2 * distancia * (material.peso_kg or 0) * (material.co2_kg or 0)
-                        co2 += impacto_transporte
-
-                    # Atualiza ou cria o insumo aplicado
-                    InsumoAplicado.objects.update_or_create(
-                        obra=obra,
-                        tipo="INSUMO",
-                        etapa_obra=etapa.nome,
-                        insumo=item.insumo,
-                        defaults={
-                            "unidade": material.unidade,
-                            "energia_embutida_mj": energia,
-                            "energia_embutida_gj": energia / 1000,
-                            "co2_kg": co2
-                        }
-                    )
-
-    obra.energia_total_mj = obra.energia_embutida_total()
-    obra.co2_total_kg = obra.co2_total()
-    obra.save()
-    
-
-
-
-    # Você pode mostrar os resultados, se quiser:
-    print("Energia total (MJ):", obra.energia_embutida_total())
-    print("CO2 total (kg):", obra.co2_total())
+    # Recalcula cada item (invoca save em cascata)
+    for item in obra.itens_aplicados.all():
+        item.save()
+    # Atualiza totais na própria obra
+    obra.calcular_impacto_total()

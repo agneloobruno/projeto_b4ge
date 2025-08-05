@@ -11,9 +11,12 @@ from .utils_calculo import atualizar_impacto_obra
 class ObraViewSet(viewsets.ModelViewSet):
     queryset = Obra.objects.all()
     serializer_class = ObraSerializer
-    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        obra = serializer.save()
+        atualizar_impacto_obra(obra)
+
+    def perform_update(self, serializer):
         obra = serializer.save()
         atualizar_impacto_obra(obra)
 

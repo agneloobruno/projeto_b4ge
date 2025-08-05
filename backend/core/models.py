@@ -1,6 +1,82 @@
-# models.py atualizado com melhorias para cálculo de impacto e estrutura relacional
-
 from django.db import models
+from django.db.models import Sum
+from utils_calculo import calcular_impacto_insumo, atualizar_impacto_obra
+
+class InsumoAplicado(models.Model):
+    obra = models.ForeignKey('Obra', related_name='itens_aplicados', on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=15, choices=[("INSUMO", "Insumo"), ("COMPOSICAO", "Composição"), ("SERVICO", "Serviço")])
+    insumo = models.ForeignKey('Insumo', null=True, blank=True, on_delete=models.SET_NULL)
+    composicao = models.ForeignKey('Composicao', null=True, blank=True, on_delete=models.SET_NULL)
+    etapa_obra = models.CharField(max_length=100)
+    quantidade = models.FloatField()
+    unidade = models.CharField(max_length=20)
+    proporcao = models.FloatField(null=True, blank=True)
+    equivalente_kg = models.FloatField(null=True, blank=True)
+    distancia_km = models.FloatField(null=True, blank=True)
+
+    # Campos de impacto
+    energia_embutida_mj = models.FloatField(null=True, blank=True)
+    energia_embutida_gj = models.FloatField(null=True, blank=True)
+    co2_kg = models.FloatField(null=True, blank=True)
+    energia_transporte_mj = models.FloatField(null=True, blank=True)
+    energia_transporte_gj = models.FloatField(null=True, blank=True)
+    potencia_w = models.FloatField(null=True, blank=True)
+    tempo_uso = models.FloatField(null=True, blank=True)
+    energia_equip_mj = models.FloatField(null=True, blank=True)
+    energia_equip_gj = models.FloatField(null=True, blank=True)
+    percentual_total = models.FloatField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Calcula campos básicos
+        if self.proporcao and self.insumo and hasattr(self.insumo, 'material'):
+            dens = self.insumo.material.densidade or 1
+            self.equivalente_kg = self.proporcao * dens
+        # Executa cálculo de impacto detalhado
+        impacto = calcular_impacto_insumo(self)
+        for key, val in impacto.items():
+            setattr(self, key, val)
+        super().save(*args, **kwargs)
+        # Atualiza impacto total da obra ao salvar cada insumo aplicado
+        if self.obra_id:
+            atualizar_impacto_obra(self.obra)
+
+class Obra(models.Model):
+    # Informações básicas da obra
+    nome = models.CharField(max_length=100)
+    tipologia = models.CharField(max_length=50)
+    cep = models.CharField(max_length=10, null=True, blank=True)
+    estado = models.CharField(max_length=50, null=True, blank=True)
+    cidade = models.ForeignKey(Cidade, on_delete=models.SET_NULL, null=True)
+    logradouro = models.CharField(max_length=100, null=True, blank=True)
+    complemento = models.CharField(max_length=100, null=True, blank=True)
+
+    area_terreno = models.FloatField(null=True, blank=True)
+    area_total_construir = models.FloatField(null=True, blank=True)
+    area_total_demolir = models.FloatField(null=True, blank=True)
+
+    #tipologias fundação
+    tipologia_fundacao = models.CharField(max_length=50, null=True, blank=True)
+    radier_espessura = models.IntegerField(null=True, blank=True)
+    radier_area_total = models.FloatField(null=True, blank=True)
+
+    #tipologias superestrutura
+    superestrutura_1 = models.CharField(max_length=50, null=True, blank=True)
+    superestrutura_2 = models.CharField(max_length=50, null=True, blank=True)
+    tipologia_vedacao_externa = models.CharField(max_length=50, null=True, blank=True)
+    tipologia_vedacao_interna = models.CharField(max_length=50, null=True, blank=True)
+
+    energia_total_mj = models.FloatField(null=True, blank=True)
+    co2_total_kg = models.FloatField(null=True, blank=True)
+
+    def calcular_impacto_total(self):
+        impacto = self.itens_aplicados.aggregate(
+            total_energia_mj=Sum('energia_embutida_mj'),
+            total_co2_kg=Sum('co2_kg')
+        )
+        self.energia_total_mj = impacto['total_energia_mj'] or 0
+        self.co2_total_kg = impacto['total_co2_kg'] or 0
+        self.save(update_fields=['energia_total_mj', 'co2_total_kg'])
+    
 
 class Material(models.Model):
     descricao = models.CharField(max_length=255, unique=True)
@@ -60,50 +136,6 @@ class DistanciaInsumoCidade(models.Model):
     def __str__(self):
         return f"{self.insumo.descricao} -> {self.cidade.nome}: {self.km} km"
 
-
-class Obra(models.Model):
-    # Informações básicas da obra
-    nome = models.CharField(max_length=100)
-    tipologia = models.CharField(max_length=50)
-    cep = models.CharField(max_length=10, null=True, blank=True)
-    estado = models.CharField(max_length=50, null=True, blank=True)
-    cidade = models.ForeignKey(Cidade, on_delete=models.SET_NULL, null=True)
-    logradouro = models.CharField(max_length=100, null=True, blank=True)
-    complemento = models.CharField(max_length=100, null=True, blank=True)
-
-    area_terreno = models.FloatField(null=True, blank=True)
-    area_total_construir = models.FloatField(null=True, blank=True)
-    area_total_demolir = models.FloatField(null=True, blank=True)
-
-    #tipologias fundação
-    tipologia_fundacao = models.CharField(max_length=50, null=True, blank=True)
-    radier_espessura = models.IntegerField(null=True, blank=True)
-    radier_area_total = models.FloatField(null=True, blank=True)
-
-    #tipologias superestrutura
-    superestrutura_1 = models.CharField(max_length=50, null=True, blank=True)
-    superestrutura_2 = models.CharField(max_length=50, null=True, blank=True)
-    tipologia_vedacao_externa = models.CharField(max_length=50, null=True, blank=True)
-    tipologia_vedacao_interna = models.CharField(max_length=50, null=True, blank=True)
-
-
-    def __str__(self):
-        return self.nome
-
-    def energia_embutida_total(self):
-        total = 0
-        for item in self.itens_aplicados.all():
-            total += (item.energia_embutida_mj or 0) + (item.energia_transporte_mj or 0) + (item.energia_equip_mj or 0)
-        return round(total, 2)
-
-    def co2_total(self):
-        return round(sum((item.co2_kg or 0) for item in self.itens_aplicados.all()), 2)
-    
-    energia_total_mj = models.FloatField(null=True, blank=True)
-    co2_total_kg = models.FloatField(null=True, blank=True)
-
-
-
 class Composicao(models.Model):
     TIPO_CHOICES = [
         ("SERVICO", "Serviço"),
@@ -134,36 +166,6 @@ class ItemDeComposicao(models.Model):
         return f"{self.composicao_pai.codigo} → {self.insumo or self.subcomposicao}"
 
 
-class InsumoAplicado(models.Model):
-    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="itens_aplicados")
-    tipo = models.CharField(max_length=20, choices=[("INSUMO", "INSUMO"), ("COMPOSICAO", "COMPOSICAO")])
-    etapa_obra = models.CharField(max_length=100)
-
-    insumo = models.ForeignKey(Insumo, on_delete=models.SET_NULL, null=True, blank=True)
-    composicao = models.ForeignKey(Composicao, on_delete=models.SET_NULL, null=True, blank=True)
-
-    unidade = models.CharField(max_length=10, null=True, blank=True)
-    proporcao = models.FloatField(null=True, blank=True)
-    quantidade = models.FloatField(null=True, blank=True)
-    equivalente_kg = models.FloatField(null=True, blank=True)
-
-    energia_embutida_mj = models.FloatField(null=True, blank=True)
-    energia_embutida_gj = models.FloatField(null=True, blank=True)
-    co2_kg = models.FloatField(null=True, blank=True)
-
-    distancia_km = models.FloatField(null=True, blank=True)
-    energia_transporte_mj = models.FloatField(null=True, blank=True)
-    energia_transporte_gj = models.FloatField(null=True, blank=True)
-
-    potencia_w = models.FloatField(null=True, blank=True)
-    tempo_uso = models.FloatField(null=True, blank=True)
-    energia_equip_mj = models.FloatField(null=True, blank=True)
-    energia_equip_gj = models.FloatField(null=True, blank=True)
-
-    percentual_total = models.FloatField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.obra.nome} - {self.tipo} - {self.insumo or self.composicao}"
 
 
 class EtapaConstrutiva(models.Model):

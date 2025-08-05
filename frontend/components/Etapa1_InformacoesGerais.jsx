@@ -9,33 +9,60 @@ export default function Etapa1_InformacoesGerais({ dados, setDados, proximaEtapa
   const [cidadesFiltradas, setCidadesFiltradas] = useState([]);
 
   const obra = {
-      nome: "teste",
-      tipologia: "teste",
-      cep: "teste",
-      estado: "MT",
-      cidade: 5220,
-      area_construida: "100",
-      tipologia_fundacao: "Radier",
-      superestrutura_1: "Concreto Armado Moldado In Loco",
-      superestrutura_2: "Estrutura Metálica",
-      tipologia_vedacao_externa: "Alvenaria 14x9x19cm",
-      area_paredes_externas: "10",
-      tipologia_vedacao_interna: "Alvenaria 14x9x19cm",
-      area_paredes_internas: "10",
-      area_laje: "10",
-      volume_laje: "10",
-      peso_armadura_laje: "1000",
-      possui_contrapiso: "Não",
-      tipologia_piso: "Cerâmico",
-      area_revestimento: "10",
-      comprimento_eletrodutos: "10",
-      comprimento_fios: "10",
-      lotacao_transporte: "10",
-      distancia_media: "10",
-      consumo_diesel: "10",
-      gasto_calorico: "10",
-      estimativa_usuarios: "2"
-    }
+    nome: "teste",
+    tipologia: "Educacional",
+    cep: "78000-000",
+    estado: "MT",
+    cidade: 5220,
+    logradouro: "Av. Exemplo",
+    numero: "123",
+    bairro: "Centro",
+    area_total: "150",
+    area_construida: "100",
+    volume_demolir: "10",
+    escavacao_manual: "8",
+
+    // Fundação
+    tipologia_fundacao: "Radier",
+    radier_espessura: 15,  // cm
+    radier_area_total: 80,
+
+    // Superestrutura
+    superestrutura_1: "Concreto Armado Moldado In Loco",
+    superestrutura_2: "Estrutura Metálica",
+
+    // Vedação externa
+    tipologia_vedacao_externa: "Alvenaria 14x9x19cm",
+    area_paredes_externas: 50,
+
+    // Vedação interna
+    tipologia_vedacao_interna: "Alvenaria 14x9x19cm",
+    area_paredes_internas: 40,
+
+    // Cobertura
+    area_laje: 100,
+    volume_laje: 20,
+    peso_armadura_laje: 500,
+
+    // Revestimento
+    possui_contrapiso: "Sim",
+    tipologia_piso: "Cerâmico",
+    area_revestimento: 100,
+
+    // Instalações
+    comprimento_eletrodutos: 150,
+    comprimento_fios: 300,
+
+    // Transporte
+    lotacao_transporte: 4,
+    distancia_media: 25,
+    consumo_diesel: 15,
+
+    // Uso
+    gasto_calorico: 2500,
+    estimativa_usuarios: 5
+  }
+
 
   // 1) Carrega lista de estados
   useEffect(() => {
