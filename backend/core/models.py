@@ -62,6 +62,7 @@ class DistanciaInsumoCidade(models.Model):
 
 
 class Obra(models.Model):
+    # Informações básicas da obra
     nome = models.CharField(max_length=100)
     tipologia = models.CharField(max_length=50)
     cep = models.CharField(max_length=10, null=True, blank=True)
@@ -73,6 +74,18 @@ class Obra(models.Model):
     area_terreno = models.FloatField(null=True, blank=True)
     area_total_construir = models.FloatField(null=True, blank=True)
     area_total_demolir = models.FloatField(null=True, blank=True)
+
+    #tipologias fundação
+    tipologia_fundacao = models.CharField(max_length=50, null=True, blank=True)
+    radier_espessura = models.IntegerField(null=True, blank=True)
+    radier_area_total = models.FloatField(null=True, blank=True)
+
+    #tipologias superestrutura
+    superestrutura_1 = models.CharField(max_length=50, null=True, blank=True)
+    superestrutura_2 = models.CharField(max_length=50, null=True, blank=True)
+    tipologia_vedacao_externa = models.CharField(max_length=50, null=True, blank=True)
+    tipologia_vedacao_interna = models.CharField(max_length=50, null=True, blank=True)
+
 
     def __str__(self):
         return self.nome

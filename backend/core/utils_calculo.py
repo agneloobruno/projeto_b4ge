@@ -13,6 +13,39 @@ def atualizar_impacto_obra(obra):
         dados = etapa.dados
         composicoes_codigos = dados.get("composicoes", [])
 
+        # 🆕 Aplicar composição da fundação automaticamente, se tipologia estiver definida
+        if etapa.nome.lower() == "fundação":
+            tipo = obra.tipologia_fundacao
+            espessura = obra.espessura_fundacao_cm
+            area = obra.area_fundacao_m2
+
+            if tipo and espessura and area:
+                # Exemplo: buscar composição "Radier 15cm" por nome
+                composicao_fundacao = Composicao.objects.filter(
+                    descricao__icontains=tipo,
+                    descricao__icontains=f"{espessura}cm"
+                ).first()
+
+                if composicao_fundacao:
+                    impacto_unitario = calcular_impacto(composicao_fundacao)
+
+                    # Aplica proporção baseada na área
+                    energia_mj = impacto_unitario["energia_mj"] * area
+                    energia_gj = energia_mj / 1000
+                    co2_kg = impacto_unitario["co2_kg"] * area
+
+                    InsumoAplicado.objects.create(
+                        obra=obra,
+                        tipo="COMPOSICAO",
+                        etapa_obra=etapa.nome,
+                        composicao=composicao_fundacao,
+                        unidade=composicao_fundacao.unidade,
+                        energia_embutida_mj=energia_mj,
+                        energia_embutida_gj=energia_gj,
+                        co2_kg=co2_kg
+                    )
+                    continue
+
         for cod in composicoes_codigos:
             from core.models import Composicao  # Import local para evitar import circular
             try:
