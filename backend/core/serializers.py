@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Cidade, Estado, Obra, Material, Insumo, InsumoAplicado, Composicao, ItemDeComposicao
+from .models import Cidade, Estado, Obra, Material, Insumo, InsumoAplicado, Composicao, ItemDeComposicao, EtapaConstrutiva
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,29 +14,50 @@ class InsumoSerializer(serializers.ModelSerializer):
         model = Insumo
         fields = '__all__'
 
+class InsumoAplicadoCreateSerializer(serializers.ModelSerializer):
+    """Aceita apenas entradas brutas; derivados são read-only no output."""
+    class Meta:
+        model = InsumoAplicado
+        fields = (
+            "id","obra","etapa_obra","insumo","quantidade","unidade",
+            "distancia_km","potencia_w","tempo_uso_h","percentual_desperdicio",
+        )
+
 class InsumoAplicadoSerializer(serializers.ModelSerializer):
-    insumo = InsumoSerializer(read_only=True)
-    insumo_id = serializers.PrimaryKeyRelatedField(
-        source='insumo',
-        queryset=Insumo.objects.all(),
-        write_only=True,
-        required=False
-    )
+    """Completo (somente leitura para os derivados)."""
+    class Meta:
+        model = InsumoAplicado
+        fields = "__all__"
+        read_only_fields = (
+            "q_kg",
+            "energia_material_mj","energia_transporte_mj","energia_equip_mj",
+            "energia_desperdicio_mj","energia_transp_descarte_mj",
+            "energia_total_mj","energia_total_gj",
+            "co2_por_gj_kg","co2_material_kg","co2_total_fator_kg","co2_total_kg",
+            "calculado_em",
+        )
+
+class EtapaConstrutivaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EtapaConstrutiva
+        fields = "__all__"
 
     class Meta:
         model = InsumoAplicado
         fields = '__all__'
 
 class ObraSerializer(serializers.ModelSerializer):
-    energia_embutida_total = serializers.SerializerMethodField()
-    co2_total = serializers.SerializerMethodField()
-    itens_aplicados = InsumoAplicadoSerializer(many=True, read_only=True)
-
+    energia_total_gj = serializers.SerializerMethodField()
+    class Meta:
+        model = Obra
+        fields = "__all__"
     class Meta:
         model = Obra
         fields = '__all__'
 
-    def get_energia_embutida_total(self, obj):
+
+
+    def get_energia_total_gj(self, obj):
         return round((obj.energia_total_mj or 0) / 1000.0, 4)  # Convert to GJ
 
     def get_co2_total(self, obj):

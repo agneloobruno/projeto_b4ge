@@ -1,125 +1,78 @@
-from rest_framework import viewsets, generics, serializers, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import viewsets, status
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from .models import Cidade, Estado, Obra, Material, InsumoAplicado
-from .serializers import CidadeSerializer, EstadoSerializer, ObraSerializer, MaterialSerializer, UserSerializer, ImpactoPorEtapaSerializer, InsumoAplicadoSerializer
-from .utils_calculo import atualizar_impacto_obra
+
+from .models import Obra, InsumoAplicado
+from .serializers import (
+    ObraSerializer, InsumoAplicadoCreateSerializer, InsumoAplicadoSerializer
+)
+from .services.calculo import atualizar_totais_obra
 
 class ObraViewSet(viewsets.ModelViewSet):
-    queryset = Obra.objects.all()
+    queryset = Obra.objects.all().order_by("-id")
     serializer_class = ObraSerializer
 
-    def perform_create(self, serializer):
-        obra = serializer.save()
-        atualizar_impacto_obra(obra)
+    @action(detail=True, methods=["post"], url_path="itens")
+    def adicionar_itens(self, request, pk=None):
+        obra = self.get_object()
+        itens = request.data if isinstance(request.data, list) else request.data.get("itens", [])
+        if not isinstance(itens, list):
+            return Response({"detail":"Esperado lista 'itens'."}, status=400)
 
-    def perform_update(self, serializer):
-        obra = serializer.save()
-        atualizar_impacto_obra(obra)
+        created = []
+        for payload in itens:
+            payload["obra"] = obra.id
+            ser = InsumoAplicadoCreateSerializer(data=payload)
+            ser.is_valid(raise_exception=True)
+            item = ser.save()  # save() dispara cálculo no model
+            created.append(item.id)
 
-@api_view(['GET'])
-def ping(request):
-    return Response({"message": "ping from Django 🔁"})
+        atualizar_totais_obra(obra)
+        out = InsumoAplicadoSerializer(InsumoAplicado.objects.filter(id__in=created), many=True)
+        return Response({"criados": len(created), "itens": out.data}, status=status.HTTP_201_CREATED)
 
-class MaterialViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
+    @action(detail=True, methods=["post"], url_path="recalcular")
+    def recalcular(self, request, pk=None):
+        obra = self.get_object()
+        # força recálculo de todos os itens
+        for item in obra.itens_aplicados.select_related("insumo__material").all():
+            item.save()
+        atualizar_totais_obra(obra)
+        return Response({"ok": True})
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username', 'password', 'email']
-        extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+@api_view(["GET"])
+def impactos_por_obra(request, obra_id: int):
+    obra = get_object_or_404(Obra, id=obra_id)
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def atualizar_impacto_api(request, obra_id):
-    try:
-        obra = Obra.objects.get(id=obra_id)
-    except Obra.DoesNotExist:
-        return Response({"erro": "Obra não encontrada."}, status=status.HTTP_404_NOT_FOUND)
-
-    resultado = atualizar_impacto_obra(obra)
-    return Response({"mensagem": resultado}, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def adicionar_itens_obra(request, obra_id):
-    obra = get_object_or_404(Obra, pk=obra_id)
-    itens = request.data.get('itens', [])
-
-    for i in itens:
-        i['obra'] = obra.id
-    
-    ser = InsumoAplicadoSerializer(data=itens, many=True)
-    ser.is_valid(raise_exception=True)
-    ser.save()
-
-    from .utils_calculo import atualizar_impacto_obra
-    atualizar_impacto_obra(obra)
-
-    return Response({"mensagem": "Itens adicionados com sucesso."}, status=status.HTTP_201_CREATED)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def impactos_por_obra(request, id):
-    try:
-        obra = Obra.objects.get(id=id)
-    except Obra.DoesNotExist:
-        return Response({"erro": "Obra não encontrada."}, status=status.HTTP_404_NOT_FOUND)
-
-    dados_agrupados = (
-        InsumoAplicado.objects
-        .filter(obra=obra)
+    por_etapa = (
+        InsumoAplicado.objects.filter(obra=obra)
         .values("etapa_obra")
         .annotate(
-            energia_embutida_total=Sum("energia_embutida_mj"),
-            co2_total=Sum("co2_kg")
-        )
-        .order_by("etapa_obra")
+            energia_mj=Sum("energia_total_mj"),
+            co2_kg=Sum("co2_total_kg"),
+        ).order_by("etapa_obra")
     )
 
-    por_etapa = [
+    etapas = [
         {
-            "etapa_obra": row["etapa_obra"],
-            "energia_embutida_total_gj": round((row["energia_embutida_mj"] or 0) / 1000.0, 4),
-            "co2_total_kg": round(row["co2_kg"] or 0, 2),
+            "etapa_obra": r["etapa_obra"],
+            "energia_gj": round((r["energia_mj"] or 0.0)/1000.0, 4),
+            "co2_kg": round(r["co2_kg"] or 0.0, 2),
         }
-        for row in dados_agrupados
+        for r in por_etapa
     ]
 
-    totais = InsumoAplicado.objects.filter(obra=obra).aggregate(
-        energia_mj=Sum("energia_embutida_mj"),
-        co2_kg=Sum("co2_kg"),
+    tot = InsumoAplicado.objects.filter(obra=obra).aggregate(
+        energia_mj=Sum("energia_total_mj"),
+        co2_kg=Sum("co2_total_kg"),
     )
 
     return Response({
         "obra_id": obra.id,
-        "por_etapa": por_etapa,
-        "energia_total_gj": round((totais["energia_mj"] or 0) / 1000.0, 4),
-        "co2_total_kg": round(totais["co2_kg"] or 0, 2),
+        "por_etapa": etapas,
+        "energia_total_gj": round((tot["energia_mj"] or 0.0)/1000.0, 4),
+        "co2_total_kg": round(tot["co2_kg"] or 0.0, 2),
     })
-
-class EstadoViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Estado.objects.order_by('nome')
-    serializer_class = EstadoSerializer
-
-class CidadeViewSet(viewsets.ViewSet):
-    def list(self, request, uf=None):
-        if uf is None:
-            return Response({"detail": "Estado (uf) não fornecido."}, status=400)
-
-        cidades = Cidade.objects.filter(estado__sigla=uf.upper()).order_by('nome')
-        serializer = CidadeSerializer(cidades, many=True)
-        return Response(serializer.data)
