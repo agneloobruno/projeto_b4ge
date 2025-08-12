@@ -1,8 +1,13 @@
 from .models import InsumoAplicado, Material, DistanciaInsumoCidade, Obra
 from .utils import calcular_impacto
 from django.db.models import Q
+from django.db import transaction
 
-def calcular_impacto_insumo(insumo_aplicado: InsumoAplicado) -> dict:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .models import InsumoAplicado
+
+def calcular_impacto_insumo(insumo_aplicado) -> dict:
     """
     Retorna dicionário com todos os valores de impacto para um insumo aplicado.
     """

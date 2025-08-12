@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     CidadeViewSet, EstadoViewSet, ObraViewSet, MaterialViewSet,
-    ping, RegisterView, atualizar_impacto_api, impactos_por_obra
+    ping, RegisterView, atualizar_impacto_api, impactos_por_obra,
+    adicionar_itens_obra
 )
 
 router = DefaultRouter()
@@ -20,6 +21,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('obras/<int:obra_id>/atualizar_impacto/', atualizar_impacto_api, name='atualizar_impacto_api'),
+    path('obras/<int:obra_id>/adicionar_itens/', adicionar_itens_obra, name='adicionar_itens_obra'),
     path('impactos/obra/<int:id>/', impactos_por_obra, name='impactos_por_obra'),
     path('estados/<str:uf>/cidades/', CidadeViewSet.as_view({'get': 'list'}), name='estado-cidades'),
 ]

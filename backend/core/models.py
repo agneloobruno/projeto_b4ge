@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Sum
-from utils_calculo import calcular_impacto_insumo, atualizar_impacto_obra
+from .utils_calculo import calcular_impacto_insumo, atualizar_impacto_obra
 
 class InsumoAplicado(models.Model):
     obra = models.ForeignKey('Obra', related_name='itens_aplicados', on_delete=models.CASCADE)
@@ -39,6 +39,21 @@ class InsumoAplicado(models.Model):
         # Atualiza impacto total da obra ao salvar cada insumo aplicado
         if self.obra_id:
             atualizar_impacto_obra(self.obra)
+
+        dens = getattr(getattr(self.insumo, "material",None), "densidade", None) or 1.0
+        if self.proporcao:
+            self.equivalente_kg = self.proporcao * dens
+        elif self.quantidade and self.unidade in ("kg", "t", "m3", "l"):
+            if self.unidade == "kg":
+                self.equivalente_kg = float(self.quantidade)
+            elif self.unidade == "t":
+                self.equivalente_kg = float(self.quantidade) * 1000.0
+            elif self.unidade == "m3":
+                self.equivalente_kg = float(self.quantidade) * dens
+            elif self.unidade == "l":
+                self.equivalente_kg = float(self.quantidade) * dens / 1000.0
+        else:
+            self.equivalente_kg = 0.0
 
 class Obra(models.Model):
     # Informações básicas da obra

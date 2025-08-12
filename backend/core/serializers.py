@@ -37,11 +37,11 @@ class ObraSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_energia_embutida_total(self, obj):
-        return obj.energia_embutida_total()
+        return round((obj.energia_total_mj or 0) / 1000.0, 4)  # Convert to GJ
 
     def get_co2_total(self, obj):
-        return obj.co2_total()
-
+        return round(obj.co2_total_kg or 0, 2) 
+    
 class ItemDeComposicaoSerializer(serializers.ModelSerializer):
     insumo = InsumoSerializer()
     subcomposicao = serializers.StringRelatedField()
