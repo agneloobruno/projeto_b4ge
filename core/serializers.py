@@ -12,15 +12,41 @@ class EstadoSerializer(serializers.ModelSerializer):
 
 class CidadeSerializer(serializers.ModelSerializer):
     estado = EstadoSerializer(read_only=True)
-    estado_id = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all(), source='estado', write_only=True)
+    estado_id = serializers.PrimaryKeyRelatedField(
+        queryset=Estado.objects.all(), source='estado', write_only=True
+    )
     class Meta:
         model = Cidade
-        fields = ('id','nome','codigo_ibge','estado','estado_id')
+        fields = ('id', 'nome', 'codigo_ibge', 'estado', 'estado_id')
 
 class ObraSerializer(serializers.ModelSerializer):
+    # leitura: exibe o id da cidade
+    cidade = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    # escrita: aceita cidade_id e mapeia para o campo relacional 'cidade'
+    cidade_id = serializers.PrimaryKeyRelatedField(
+        queryset=Cidade.objects.all(), source='cidade', write_only=True
+    )
+
+    # força conversão correta para Decimal
+    area_construida_m2 = serializers.DecimalField(
+        max_digits=10, decimal_places=2, min_value=0
+    )
+
     class Meta:
         model = Obra
-        fields = '__all__'
+        fields = (
+            'id', 'nome', 'area_construida_m2',
+            'fundacao_codigo',
+            'supra_estrutura_1_codigo',
+            'supra_estrutura_2_codigo',
+            'fechamentos_codigo',
+            'telhado_codigo',
+            'piso_codigo',
+            'created_at', 'updated_at',
+            'cidade', 'cidade_id',
+        )
+
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:

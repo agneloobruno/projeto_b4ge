@@ -29,7 +29,7 @@ class EtapaConstrutiva(models.TextChoices):
 class Obra(models.Model):
     nome = models.CharField(max_length=160)
     cidade = models.ForeignKey(Cidade, on_delete=models.PROTECT, related_name='obras')
-    area_construida_m2 = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    area_construida_m2 = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator('0')])
     fundacao_codigo = models.CharField(max_length=50, blank=True, null=True)
     supra_estrutura_1_codigo = models.CharField(max_length=50, blank=True, null=True)
     supra_estrutura_2_codigo = models.CharField(max_length=50, blank=True, null=True)
@@ -74,7 +74,7 @@ class ItemDeComposicao(models.Model):
     composicao = models.ForeignKey(Composicao, on_delete=models.CASCADE, related_name='itens')
     material = models.ForeignKey(Material, on_delete=models.PROTECT, related_name='itens')
     unidade_medida = models.CharField(max_length=20, help_text='ex: m2, un, kg')
-    quantidade = models.DecimalField(max_digits=14, decimal_places=4, validators=[MinValueValidator(0)])
+    quantidade = models.DecimalField(max_digits=14, decimal_places=4, validators=[MinValueValidator('0')])
     desperdicio_pct = models.DecimalField(max_digits=6, decimal_places=3, default=Decimal('0'), help_text='% 0-100')
     def __str__(self):
         return f"{self.composicao.codigo} - {self.material.nome}"
@@ -82,7 +82,7 @@ class ItemDeComposicao(models.Model):
 class DistanciaInsumoCidade(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='distancias')
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE, related_name='distancias_insumo')
-    distancia_km = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    distancia_km = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator('0')])
     class Meta:
         unique_together = ('material', 'cidade')
     def __str__(self):
